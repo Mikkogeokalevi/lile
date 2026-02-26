@@ -37,6 +37,7 @@ export default function AppLayout() {
             </NavLink>
             <NavLink to="/ruokapaikat">Ruokapaikat</NavLink>
             <NavLink to="/reseptit">Reseptit</NavLink>
+            <NavLink to="/ohjekirja">Ohjekirja</NavLink>
             <NavLink to="/versiohistoria">Versiohistoria</NavLink>
 
             <div className="nav-spacer" />

@@ -24,3 +24,4 @@
 - Osoitehaku paikan lisäykseen.
 - Ruokapaikkoihin haku (vapaa tekstihaku) ja paikkakunta-suodatin.
 - Karttaan “Paikanna minut” -nappi (kertapaikannus).
+- Ohjekirja-sivu sovelluksen käyttöohjeille.

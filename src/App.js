@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage';
 import PlacesPage from './pages/PlacesPage';
 import RecipesPage from './pages/RecipesPage';
 import VersionHistoryPage from './pages/VersionHistoryPage';
+import UserGuidePage from './pages/UserGuidePage';
 import LoginPage from './pages/LoginPage';
 import AdminPage from './pages/AdminPage';
 
@@ -32,6 +33,14 @@ function App() {
             element={
               <RequireAuth>
                 <RecipesPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/ohjekirja"
+            element={
+              <RequireAuth>
+                <UserGuidePage />
               </RequireAuth>
             }
           />

@@ -32,9 +32,13 @@ export default function PlacesPage() {
   const [searchText, setSearchText] = useState('');
   const [cityFilter, setCityFilter] = useState('');
 
+  const [view, setView] = useState('map');
+
   const [editingPlace, setEditingPlace] = useState(null);
   const [editName, setEditName] = useState('');
   const [editNotes, setEditNotes] = useState('');
+  const [editAddressValue, setEditAddressValue] = useState('');
+  const [editPickedLocation, setEditPickedLocation] = useState(null);
   const [editBusy, setEditBusy] = useState(false);
   const [editError, setEditError] = useState('');
   const [requestBusy, setRequestBusy] = useState(false);
@@ -140,6 +144,8 @@ export default function PlacesPage() {
     setEditingPlace(p);
     setEditName(p?.name || '');
     setEditNotes(p?.notes || '');
+    setEditAddressValue(p?.address || '');
+    setEditPickedLocation(null);
     setEditError('');
     setRequestError('');
   }
@@ -150,13 +156,22 @@ export default function PlacesPage() {
     setEditError('');
 
     try {
-      await updateDoc(doc(db, 'places', editingPlace.id), {
+      const update = {
         name: (editName || '').trim(),
         notes: (editNotes || '').trim(),
         updatedAt: serverTimestamp(),
         updatedByUid: user.uid,
         updatedByEmail: user.email || null,
-      });
+      };
+
+      if (editPickedLocation?.address && Number.isFinite(editPickedLocation?.lat) && Number.isFinite(editPickedLocation?.lng)) {
+        update.address = editPickedLocation.address;
+        update.lat = editPickedLocation.lat;
+        update.lng = editPickedLocation.lng;
+        update.city = (editPickedLocation.city || '').trim();
+      }
+
+      await updateDoc(doc(db, 'places', editingPlace.id), update);
 
       setEditingPlace(null);
     } catch (e) {
@@ -256,7 +271,24 @@ export default function PlacesPage() {
         </div>
       </details>
 
-      <div className="grid-2">
+      <div className="tabs" style={{ marginBottom: 16 }}>
+        <button
+          type="button"
+          className={view === 'map' ? 'tab tab--active' : 'tab'}
+          onClick={() => setView('map')}
+        >
+          Kartta
+        </button>
+        <button
+          type="button"
+          className={view === 'list' ? 'tab tab--active' : 'tab'}
+          onClick={() => setView('list')}
+        >
+          Lista
+        </button>
+      </div>
+
+      <div className={view === 'map' ? 'grid-2' : 'grid-1'}>
         <details className="card disclosure" open>
           <summary className="disclosure__summary">Lisää uusi paikka</summary>
           <div className="disclosure__body">
@@ -309,119 +341,123 @@ export default function PlacesPage() {
           </div>
         </details>
 
-        <div className="card">
-          <h3>Kartta</h3>
-          <PlacesMap
-            places={filteredPlaces.map((p) => ({
-              ...p,
-              lat: typeof p.lat === 'number' ? p.lat : Number(p.lat),
-              lng: typeof p.lng === 'number' ? p.lng : Number(p.lng),
-            }))}
-            onSelectPlace={(p) => {
-              setSelectedPlace(p);
-              setClusterPlaces([]);
-            }}
-            onSelectClusterPlaces={(list) => {
-              setClusterPlaces(list);
-              setSelectedPlace(null);
-            }}
-          />
+        {view === 'map' ? (
+          <div className="card">
+            <h3>Kartta</h3>
+            <PlacesMap
+              places={filteredPlaces.map((p) => ({
+                ...p,
+                lat: typeof p.lat === 'number' ? p.lat : Number(p.lat),
+                lng: typeof p.lng === 'number' ? p.lng : Number(p.lng),
+              }))}
+              onSelectPlace={(p) => {
+                setSelectedPlace(p);
+                setClusterPlaces([]);
+              }}
+              onSelectClusterPlaces={(list) => {
+                setClusterPlaces(list);
+                setSelectedPlace(null);
+              }}
+            />
 
-          {clusterPlaces.length ? (
-            <div className="cluster">
-              <div className="cluster__header">
-                <strong>{clusterPlaces.length} paikkaa samalla alueella</strong>
-                <button className="btn btn--ghost" type="button" onClick={() => setClusterPlaces([])}>
-                  Sulje
-                </button>
+            {clusterPlaces.length ? (
+              <div className="cluster">
+                <div className="cluster__header">
+                  <strong>{clusterPlaces.length} paikkaa samalla alueella</strong>
+                  <button className="btn btn--ghost" type="button" onClick={() => setClusterPlaces([])}>
+                    Sulje
+                  </button>
+                </div>
+                <div className="cluster__list">
+                  {clusterPlaces.map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      className="cluster__item"
+                      onClick={() => {
+                        setSelectedPlace(p);
+                        setClusterPlaces([]);
+                      }}
+                    >
+                      <div className="cluster__name">{p.name}</div>
+                      <div className="cluster__addr">{p.address}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="cluster__list">
-                {clusterPlaces.map((p) => (
+            ) : null}
+
+            {selectedPlace ? (
+              <div className="detail">
+                <div className="detail__header">
+                  <strong>{selectedPlace.name}</strong>
+                  <button className="btn btn--ghost" type="button" onClick={() => setSelectedPlace(null)}>
+                    Sulje
+                  </button>
+                </div>
+                <div className="detail__body">
+                  <div style={{ opacity: 0.9 }}>{selectedPlace.address}</div>
+                  {selectedPlace.notes ? <div style={{ marginTop: 8 }}>{selectedPlace.notes}</div> : null}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
+      {view === 'list' ? (
+        <div className="card" style={{ marginTop: 16 }}>
+          <h3>Lista</h3>
+          {loading ? <div>Haetaan ruokapaikkoja...</div> : null}
+          {loadError ? <div className="error">{loadError}</div> : null}
+          {!loading && !places.length ? <div>Ei vielä ruokapaikkoja. Lisää ensimmäinen!</div> : null}
+          {!loading && places.length && !filteredPlaces.length ? <div>Ei hakuehtoja vastaavia paikkoja.</div> : null}
+
+          {filteredPlaces.length ? (
+            <div className="list">
+              {filteredPlaces.map((p) => (
+                <div key={p.id} className="list__row">
                   <button
-                    key={p.id}
                     type="button"
-                    className="cluster__item"
+                    className="list__item"
                     onClick={() => {
                       setSelectedPlace(p);
                       setClusterPlaces([]);
                     }}
                   >
-                    <div className="cluster__name">{p.name}</div>
-                    <div className="cluster__addr">{p.address}</div>
+                    <div className="list__name">{p.name}</div>
+                    <div className="list__addr">{p.address}</div>
                   </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
 
-          {selectedPlace ? (
-            <div className="detail">
-              <div className="detail__header">
-                <strong>{selectedPlace.name}</strong>
-                <button className="btn btn--ghost" type="button" onClick={() => setSelectedPlace(null)}>
-                  Sulje
-                </button>
-              </div>
-              <div className="detail__body">
-                <div style={{ opacity: 0.9 }}>{selectedPlace.address}</div>
-                {selectedPlace.notes ? <div style={{ marginTop: 8 }}>{selectedPlace.notes}</div> : null}
-              </div>
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label="Muokkaa"
+                    onClick={() => startEdit(p)}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M12 20H21"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
             </div>
           ) : null}
         </div>
-      </div>
-
-      <div className="card" style={{ marginTop: 16 }}>
-        <h3>Lista</h3>
-        {loading ? <div>Haetaan ruokapaikkoja...</div> : null}
-        {loadError ? <div className="error">{loadError}</div> : null}
-        {!loading && !places.length ? <div>Ei vielä ruokapaikkoja. Lisää ensimmäinen!</div> : null}
-        {!loading && places.length && !filteredPlaces.length ? <div>Ei hakuehtoja vastaavia paikkoja.</div> : null}
-
-        {filteredPlaces.length ? (
-          <div className="list">
-            {filteredPlaces.map((p) => (
-              <div key={p.id} className="list__row">
-                <button
-                  type="button"
-                  className="list__item"
-                  onClick={() => {
-                    setSelectedPlace(p);
-                    setClusterPlaces([]);
-                  }}
-                >
-                  <div className="list__name">{p.name}</div>
-                  <div className="list__addr">{p.address}</div>
-                </button>
-
-                <button
-                  type="button"
-                  className="icon-btn"
-                  aria-label="Muokkaa"
-                  onClick={() => startEdit(p)}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M12 20H21"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </div>
+      ) : null}
 
       {editingPlace ? (
         <div className="modal" role="dialog" aria-modal="true">
@@ -452,6 +488,18 @@ export default function PlacesPage() {
                 value={editNotes}
                 onChange={(e) => setEditNotes(e.target.value)}
               />
+            </div>
+
+            <div className="field">
+              <label className="field__label">Osoite (haku)</label>
+              <AddressSearch
+                value={editAddressValue}
+                onPick={(picked) => {
+                  setEditPickedLocation(picked);
+                  setEditAddressValue(picked.label);
+                }}
+              />
+              {editPickedLocation ? <div className="hint">Valittu: {editPickedLocation.address}</div> : null}
             </div>
 
             <div className="modal__actions">
