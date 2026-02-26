@@ -15,7 +15,7 @@ import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/lile">
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />

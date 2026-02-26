@@ -18,6 +18,14 @@ Web-sovellus lihavuusleikattujen tukiryhmälle, jossa käyttäjät voivat jakaa 
 - Päivitä kun uusia ominaisuuksia lisätään
 - Varmista että opas on aina ajan tasalla
 
+### 2.1 Checkpoint-käytäntö (Git)
+- Kun käyttäjä sanoo **"tee checkpoint"**, tehdään aina:
+  - `git add .`
+  - `git commit -m "Checkpoint: <kuvaus>"`
+  - `git tag vX.Y-<nimi>`
+  - `git push` ja `git push --tags`
+- Checkpointin tarkoitus on, että käyttäjä voi palata takaisin toimivaan tilaan myöhemmin.
+
 ### 3. Tekninen toteutus
 - **Framework**: React.js
 - **Authentication**: Firebase (Gmail/sähköposti)
