@@ -225,38 +225,41 @@ export default function PlacesPage() {
         Lisää ja selaa ruokapaikkoja. Kartasta voit avata paikan klikkaamalla markeria.
       </p>
 
-      <div className="card" style={{ marginBottom: 16 }}>
-        <h3>Haku</h3>
-        <div className="filters">
-          <div className="field">
-            <label className="field__label">Hae (nimi, osoite, lisätiedot)</label>
-            <input
-              className="field__input"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Esim. lahti, pizza, ABC..."
-            />
+      <details className="card disclosure" style={{ marginBottom: 16 }}>
+        <summary className="disclosure__summary">Haku</summary>
+        <div className="disclosure__body">
+          <div className="filters">
+            <div className="field">
+              <label className="field__label">Hae (nimi, osoite, lisätiedot)</label>
+              <input
+                className="field__input"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Esim. lahti, pizza, ABC..."
+              />
+            </div>
+
+            <div className="field">
+              <label className="field__label">Paikkakunta</label>
+              <select className="field__input" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}>
+                <option value="">Kaikki</option>
+                {cities.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="field">
-            <label className="field__label">Paikkakunta</label>
-            <select className="field__input" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}>
-              <option value="">Kaikki</option>
-              {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div className="hint">Näytetään {filteredPlaces.length} / {places.length}</div>
         </div>
-
-        <div className="hint">Näytetään {filteredPlaces.length} / {places.length}</div>
-      </div>
+      </details>
 
       <div className="grid-2">
-        <div className="card">
-          <h3>Lisää uusi paikka</h3>
+        <details className="card disclosure" open>
+          <summary className="disclosure__summary">Lisää uusi paikka</summary>
+          <div className="disclosure__body">
 
           <form onSubmit={onAddPlace} className="form">
             <div className="field">
@@ -303,7 +306,8 @@ export default function PlacesPage() {
 
             {saveError ? <div className="error">{saveError}</div> : null}
           </form>
-        </div>
+          </div>
+        </details>
 
         <div className="card">
           <h3>Kartta</h3>
