@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
 
 import { db } from '../firebase';
 import { useAuth } from '../hooks/useAuth';
@@ -23,6 +32,14 @@ export default function PlacesPage() {
   const [searchText, setSearchText] = useState('');
   const [cityFilter, setCityFilter] = useState('');
 
+  const [editingPlace, setEditingPlace] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editBusy, setEditBusy] = useState(false);
+  const [editError, setEditError] = useState('');
+  const [requestBusy, setRequestBusy] = useState(false);
+  const [requestError, setRequestError] = useState('');
+
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [clusterPlaces, setClusterPlaces] = useState([]);
 
@@ -44,12 +61,59 @@ export default function PlacesPage() {
     return () => unsub();
   }, []);
 
+  function inferCityFromAddress(address) {
+    const s = String(address || '');
+    if (!s.includes(',')) return '';
+    const parts = s
+      .split(',')
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    const skip = (p) => {
+      if (!p) return true;
+      if (/\d/.test(p)) return true;
+      if (p.length < 2 || p.length > 40) return true;
+      if (/suomi/i.test(p)) return true;
+      if (/manner-suomi/i.test(p)) return true;
+      if (/maakunta/i.test(p)) return true;
+      if (/seutukunta/i.test(p)) return true;
+      if (/\b(finland)\b/i.test(p)) return true;
+      if (/\b(paijat-hame|päijät-häme)\b/i.test(p)) return true;
+      return false;
+    };
+
+    for (let i = parts.length - 1; i >= 0; i -= 1) {
+      const p = parts[i];
+      if (skip(p)) continue;
+      return p;
+    }
+
+    return '';
+  }
+
+  function getCity(p) {
+    return (p.city || '').trim() || inferCityFromAddress(p.address);
+  }
+
+  function fmtTs(ts) {
+    if (!ts) return '';
+    try {
+      if (typeof ts?.toDate === 'function') {
+        return ts.toDate().toLocaleString('fi-FI');
+      }
+      if (ts instanceof Date) return ts.toLocaleString('fi-FI');
+    } catch {
+      return '';
+    }
+    return '';
+  }
+
   const canSave = Boolean(name.trim()) && Boolean(pickedLocation?.lat) && Boolean(pickedLocation?.lng);
 
   const cities = useMemo(() => {
     const set = new Set();
     for (const p of places) {
-      const c = (p.city || '').trim();
+      const c = getCity(p);
       if (c) set.add(c);
     }
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'fi'));
@@ -61,7 +125,7 @@ export default function PlacesPage() {
 
     return places.filter((p) => {
       if (city) {
-        const pc = String(p.city || '').toLowerCase();
+        const pc = String(getCity(p) || '').toLowerCase();
         if (pc !== city) return false;
       }
 
@@ -71,6 +135,57 @@ export default function PlacesPage() {
       return hay.includes(q);
     });
   }, [places, searchText, cityFilter]);
+
+  function startEdit(p) {
+    setEditingPlace(p);
+    setEditName(p?.name || '');
+    setEditNotes(p?.notes || '');
+    setEditError('');
+    setRequestError('');
+  }
+
+  async function saveEdit() {
+    if (!user || !editingPlace) return;
+    setEditBusy(true);
+    setEditError('');
+
+    try {
+      await updateDoc(doc(db, 'places', editingPlace.id), {
+        name: (editName || '').trim(),
+        notes: (editNotes || '').trim(),
+        updatedAt: serverTimestamp(),
+        updatedByUid: user.uid,
+        updatedByEmail: user.email || null,
+      });
+
+      setEditingPlace(null);
+    } catch (e) {
+      setEditError(e?.message || 'Tallennus epäonnistui.');
+    } finally {
+      setEditBusy(false);
+    }
+  }
+
+  async function requestRemoval() {
+    if (!user || !editingPlace) return;
+    setRequestBusy(true);
+    setRequestError('');
+
+    try {
+      await addDoc(collection(db, 'placeRemovalRequests'), {
+        placeId: editingPlace.id,
+        placeName: editingPlace.name || '',
+        requestedAt: serverTimestamp(),
+        requestedByUid: user.uid,
+        requestedByEmail: user.email || null,
+        status: 'pending',
+      });
+    } catch (e) {
+      setRequestError(e?.message || 'Poistopyynnön lähetys epäonnistui.');
+    } finally {
+      setRequestBusy(false);
+    }
+  }
 
   async function onAddPlace(e) {
     e.preventDefault();
@@ -262,22 +377,102 @@ export default function PlacesPage() {
         {filteredPlaces.length ? (
           <div className="list">
             {filteredPlaces.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                className="list__item"
-                onClick={() => {
-                  setSelectedPlace(p);
-                  setClusterPlaces([]);
-                }}
-              >
-                <div className="list__name">{p.name}</div>
-                <div className="list__addr">{p.address}</div>
-              </button>
+              <div key={p.id} className="list__row">
+                <button
+                  type="button"
+                  className="list__item"
+                  onClick={() => {
+                    setSelectedPlace(p);
+                    setClusterPlaces([]);
+                  }}
+                >
+                  <div className="list__name">{p.name}</div>
+                  <div className="list__addr">{p.address}</div>
+                </button>
+
+                <button
+                  type="button"
+                  className="icon-btn"
+                  aria-label="Muokkaa"
+                  onClick={() => startEdit(p)}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M12 20H21"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
             ))}
           </div>
         ) : null}
       </div>
+
+      {editingPlace ? (
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal__backdrop" onClick={() => setEditingPlace(null)} />
+          <div className="modal__panel">
+            <div className="modal__header">
+              <strong>Muokkaa paikkaa</strong>
+              <button className="btn btn--ghost" type="button" onClick={() => setEditingPlace(null)}>
+                Sulje
+              </button>
+            </div>
+
+            <div className="modal__meta">
+              <div>Luotu: {fmtTs(editingPlace.createdAt) || '-'}</div>
+              <div>Muokattu: {fmtTs(editingPlace.updatedAt) || '-'}</div>
+            </div>
+
+            <div className="field">
+              <label className="field__label">Nimi</label>
+              <input className="field__input" value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </div>
+
+            <div className="field">
+              <label className="field__label">Lisätiedot</label>
+              <textarea
+                className="field__input"
+                rows={3}
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+              />
+            </div>
+
+            <div className="modal__actions">
+              <button className="btn btn--primary" type="button" onClick={saveEdit} disabled={editBusy}>
+                {editBusy ? 'Tallennetaan...' : 'Tallenna'}
+              </button>
+
+              <button
+                className="btn btn--secondary"
+                type="button"
+                onClick={requestRemoval}
+                disabled={requestBusy}
+              >
+                {requestBusy ? 'Lähetetään...' : 'Pyydä poistoa'}
+              </button>
+            </div>
+
+            {editError ? <div className="error">{editError}</div> : null}
+            {requestError ? <div className="error">{requestError}</div> : null}
+            {!requestError && !requestBusy ? (
+              <div className="hint">Poistopyyntö menee ylläpitäjälle hyväksyttäväksi.</div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

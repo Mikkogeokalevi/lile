@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 
@@ -13,12 +13,14 @@ L.Icon.Default.mergeOptions({
   shadowUrl,
 });
 
-function LocateControl({ onLocation }) {
-  const map = useMap();
+export default function PlacesMap({ places, onSelectPlace, onSelectClusterPlaces }) {
+  const center = useMemo(() => [60.9827, 25.6615], []);
+  const [map, setMap] = useState(null);
+  const [myLocation, setMyLocation] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  async function locateOnce() {
+  function locateOnce() {
     setError('');
 
     if (!('geolocation' in navigator)) {
@@ -26,12 +28,14 @@ function LocateControl({ onLocation }) {
       return;
     }
 
+    if (!map) return;
+
     setBusy(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        onLocation({ lat, lng });
+        setMyLocation({ lat, lng });
         map.setView([lat, lng], Math.max(map.getZoom(), 14), { animate: true });
         setBusy(false);
       },
@@ -47,20 +51,6 @@ function LocateControl({ onLocation }) {
     );
   }
 
-  return (
-    <div className="map__controls">
-      <button className="btn btn--secondary map__btn" type="button" onClick={locateOnce} disabled={busy}>
-        {busy ? 'Paikannetaan...' : 'Paikanna minut'}
-      </button>
-      {error ? <div className="map__error">{error}</div> : null}
-    </div>
-  );
-}
-
-export default function PlacesMap({ places, onSelectPlace, onSelectClusterPlaces }) {
-  const center = useMemo(() => [60.9827, 25.6615], []);
-  const [myLocation, setMyLocation] = useState(null);
-
   const placesById = useMemo(() => {
     const m = new Map();
     for (const p of places || []) m.set(p.id, p);
@@ -69,8 +59,20 @@ export default function PlacesMap({ places, onSelectPlace, onSelectClusterPlaces
 
   return (
     <div className="map">
-      <MapContainer center={center} zoom={12} scrollWheelZoom style={{ height: 420, width: '100%' }}>
-        <LocateControl onLocation={setMyLocation} />
+      <div className="map__controls">
+        <button className="btn btn--secondary map__btn" type="button" onClick={locateOnce} disabled={busy || !map}>
+          {busy ? 'Paikannetaan...' : 'Paikanna minut'}
+        </button>
+        {error ? <div className="map__error">{error}</div> : null}
+      </div>
+
+      <MapContainer
+        center={center}
+        zoom={12}
+        scrollWheelZoom
+        style={{ height: 420, width: '100%' }}
+        whenReady={(e) => setMap(e.target)}
+      >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
