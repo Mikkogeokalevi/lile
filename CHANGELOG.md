@@ -8,3 +8,7 @@
 ### Lisätty
 - Kirjautuminen (Google sekä sähköposti/salasana).
 - Admin-linkki näkyy vain ylläpitäjälle.
+
+### Muutettu
+- Kun käyttäjä ei ole kirjautunut sisään, sovellus on lukittu ja näyttää vain kirjautumisnäkymän.
+- Kirjautumissivun ulkoasua parannettu.

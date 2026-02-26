@@ -5,6 +5,140 @@
   padding: 20px;
 }
 
+.App--locked {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #3b3f59 0%, #1b1d2b 55%, #0f1020 100%);
+  display: flex;
+}
+
+.locked {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login__card {
+  width: min(720px, 100%);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  padding: 28px 20px;
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+
+.login__brand {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.login__icon {
+  font-size: 40px;
+  margin: 10px 0;
+}
+
+.login__subtitle {
+  opacity: 0.9;
+  margin-bottom: 18px;
+}
+
+.login__actions {
+  display: grid;
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.login__or {
+  opacity: 0.8;
+}
+
+.login__form {
+  display: grid;
+  gap: 10px;
+}
+
+.field {
+  text-align: left;
+  display: grid;
+  gap: 4px;
+}
+
+.field__label {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.field__input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.95);
+  outline: none;
+}
+
+.field__input:focus {
+  border-color: rgba(125, 211, 252, 0.8);
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.18);
+}
+
+.btn {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: #8ab4ff;
+  color: #0b1220;
+}
+
+.btn--secondary {
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.login__title {
+  margin: 18px 0 8px;
+  font-size: 1.1rem;
+  opacity: 0.85;
+}
+
+.login__error {
+  margin-top: 8px;
+  color: #ffb4b4;
+  text-align: left;
+}
+
 .brand {
   color: inherit;
   text-decoration: none;

@@ -45,46 +45,53 @@ export default function LoginPage() {
   }
 
   return (
-    <div>
-      <h2>{title}</h2>
+    <div className="login">
+      <div className="login__card">
+        <div className="login__brand">Lile</div>
+        <div className="login__icon" aria-hidden="true">
+          🔒
+        </div>
+        <div className="login__subtitle">Kirjaudu sisään käyttääksesi työkaluja.</div>
 
-      <div style={{ display: 'grid', gap: 12, maxWidth: 420 }}>
-        <button onClick={onGoogleLogin} disabled={busy}>
-          Jatka Googlella
-        </button>
-
-        <div style={{ opacity: 0.8 }}>tai</div>
-
-        <form onSubmit={onEmailSubmit} style={{ display: 'grid', gap: 8 }}>
-          <label style={{ display: 'grid', gap: 4, textAlign: 'left' }}>
-            Sähköposti
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </label>
-
-          <label style={{ display: 'grid', gap: 4, textAlign: 'left' }}>
-            Salasana
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            />
-          </label>
-
-          <button type="submit" disabled={busy}>
-            {mode === 'login' ? 'Kirjaudu' : 'Luo tunnus'}
+        <div className="login__actions">
+          <button className="btn btn--primary" onClick={onGoogleLogin} disabled={busy}>
+            Jatka Googlella
           </button>
-        </form>
 
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div className="login__or">tai</div>
+
+          <form onSubmit={onEmailSubmit} className="login__form">
+            <div className="field">
+              <label className="field__label">Sähköposti</label>
+              <input
+                className="field__input"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+
+            <div className="field">
+              <label className="field__label">Salasana</label>
+              <input
+                className="field__input"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              />
+            </div>
+
+            <button className="btn btn--secondary" type="submit" disabled={busy}>
+              {mode === 'login' ? 'Kirjaudu sisään' : 'Luo uusi tunnus'}
+            </button>
+          </form>
+
           <button
+            className="btn btn--ghost"
             type="button"
             onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
             disabled={busy}
@@ -93,11 +100,9 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {error ? (
-          <div style={{ color: '#b00020', textAlign: 'left' }}>
-            {error}
-          </div>
-        ) : null}
+        <h2 className="login__title">{title}</h2>
+
+        {error ? <div className="login__error">{error}</div> : null}
       </div>
     </div>
   );
