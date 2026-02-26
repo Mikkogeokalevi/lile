@@ -12,6 +12,10 @@ export default function AppLayout() {
 
   const isAdmin = user?.email && user.email.toLowerCase() === ADMIN_EMAIL;
 
+  if (!initializing && user && location.pathname === '/kirjaudu') {
+    return <Navigate to="/" replace />;
+  }
+
   if (!initializing && !user && location.pathname !== '/kirjaudu') {
     return <Navigate to="/kirjaudu" replace />;
   }

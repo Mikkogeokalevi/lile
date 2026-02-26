@@ -1,12 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
+import { useAuth } from '../hooks/useAuth';
 
 export default function LoginPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +20,13 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const title = useMemo(() => (mode === 'login' ? 'Kirjaudu sisään' : 'Luo tunnus'), [mode]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const from = location.state?.from?.pathname;
+    navigate(from || '/', { replace: true });
+  }, [user, location.state, navigate]);
 
   async function onGoogleLogin() {
     setError('');

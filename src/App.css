@@ -5,6 +5,10 @@
   padding: 20px;
 }
 
+.App:not(.App--locked) {
+  min-height: 100vh;
+}
+
 .App--locked {
   max-width: none;
   margin: 0;
@@ -127,6 +131,21 @@
   border-color: rgba(255, 255, 255, 0.18);
 }
 
+.App:not(.App--locked) .btn {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.App:not(.App--locked) .btn--primary {
+  background: #8ab4ff;
+  color: #0b1220;
+}
+
+.App:not(.App--locked) .btn--secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
 .login__title {
   margin: 18px 0 8px;
   font-size: 1.1rem;
@@ -145,7 +164,7 @@
 }
 
 .App-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(circle at top, #3b3f59 0%, #1b1d2b 55%, #0f1020 100%);
   padding: 40px 20px;
   color: white;
   border-radius: 10px;
@@ -162,18 +181,18 @@
 }
 
 .top-nav a {
-  color: #2c2c2c;
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
   padding: 8px 10px;
   border-radius: 8px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .top-nav a.active {
-  background: #111827;
-  color: #ffffff;
-  border-color: #111827;
+  background: rgba(138, 180, 255, 0.16);
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(138, 180, 255, 0.28);
 }
 
 .nav-spacer {
@@ -183,28 +202,55 @@
 
 .nav-muted {
   font-size: 0.9rem;
-  opacity: 0.85;
+  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .linkish {
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
   cursor: pointer;
 }
 
 .content {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   padding: 18px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   text-align: left;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .footer {
   margin-top: 18px;
   padding: 12px 0;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .App-header h1 {
