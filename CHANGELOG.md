@@ -17,3 +17,10 @@
 - Kirjautumisen jälkeen käyttäjä ohjataan automaattisesti etusivulle (kirjautumisnäkymä ei jää näkyviin).
 - Etusivulle lisätty tervetuloa-/aloitusnäkymä, josta pääsee suoraan ruokapaikkoihin ja resepteihin.
 - Sovelluksen väriteema yhtenäistetty sinisävyiseksi.
+
+### Lisätty
+- Ruokapaikat-sivu: paikkojen lisäys ja listaus.
+- Karttanäkymä ruokapaikoille (klusterointi ja tietueen avaaminen kartalta).
+- Osoitehaku paikan lisäykseen.
+- Ruokapaikkoihin haku (vapaa tekstihaku) ja paikkakunta-suodatin.
+- Karttaan “Paikanna minut” -nappi (kertapaikannus).

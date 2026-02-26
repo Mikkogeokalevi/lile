@@ -1,7 +1,7 @@
 {
   "name": "lile",
   "version": "1.0.0",
-  "description": "Lihavuusleikattujen tukiryhmän työkalu",
+  "description": "Lile Lahti - jaa ruokapaikkoja ja reseptejä",
   "homepage": "https://mikkogeokalevi.github.io/lile",
   "scripts": {
     "start": "react-scripts start",
@@ -29,8 +29,11 @@
   "dependencies": {
     "firebase": "^12.9.0",
     "gh-pages": "^6.3.0",
+    "leaflet": "^1.9.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-leaflet": "^5.0.0",
+    "react-leaflet-cluster": "^4.0.0",
     "react-router-dom": "^7.13.1",
     "react-scripts": "^5.0.1"
   }

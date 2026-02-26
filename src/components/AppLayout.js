@@ -26,7 +26,7 @@ export default function AppLayout() {
         <>
           <header className="App-header">
             <Link to="/" className="brand">
-              <h1>Lihavuusleikattujen tukiryhmä</h1>
+              <h1>Lile Lahti</h1>
             </Link>
             <p>Tervetuloa! Tämä on työkalu ruokapaikkojen ja reseptien jakamiseen.</p>
           </header>
@@ -59,7 +59,7 @@ export default function AppLayout() {
           </main>
 
           <footer className="footer">
-            <span className="nav-muted">Lile</span>
+            <span className="nav-muted">Lile Lahti</span>
           </footer>
         </>
       ) : (

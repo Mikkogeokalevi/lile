@@ -60,7 +60,7 @@ export default function LoginPage() {
   return (
     <div className="login">
       <div className="login__card">
-        <div className="login__brand">Lile</div>
+        <div className="login__brand">Lile Lahti</div>
         <div className="login__icon" aria-hidden="true">
           🔒
         </div>
