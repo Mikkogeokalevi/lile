@@ -6,10 +6,11 @@ Web-sovellus lihavuusleikattujen tukiryhmälle, jossa käyttäjät voivat jakaa 
 ## Keskeiset vaatimukset
 
 ### 1. Versiohistoria (CHANGELOG.md)
-- **TÄRKEIN SÄÄNTÖ**: Kaikki AI:n tekemät muutokset päivittyvät automaattisesti changelogiin
-- Vanhat versiot EI KOSKAAN poistu tai lyhene
-- Muoto: Päivämäärä, kuvaus muutoksesta, muutetut tiedostot
-- Päivitä jokaisen merkittävän muutoksen jälkeen
+- **TÄRKEIN SÄÄNTÖ**: `CHANGELOG.md` on käyttäjille näkyvä versiohistoria (julkaisutiedotteet)
+- Changelogiin kirjataan **vain käyttäjälle näkyvät muutokset** (ei admin-näkymän sisäisiä muutoksia, ei kehitys-/refaktorointimerkintöjä)
+- Vanhat versiot EI KOSKAAN poistu tai lyhene (append-only)
+- Muoto: Päivämäärä + käyttäjälle ymmärrettävä kuvaus muutoksesta
+- Päivitä aina kun sovellukseen lisätään tai muutetaan käyttäjälle näkyvää toiminnallisuutta
 
 ### 2. Käyttöohjekirja (USER_GUIDE.md)
 - Täydellinen käyttöopas käyttäjän näkökulmasta
