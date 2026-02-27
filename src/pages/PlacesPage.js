@@ -95,6 +95,7 @@ export default function PlacesPage() {
 
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
+  const [benefit, setBenefit] = useState('');
   const [addressValue, setAddressValue] = useState('');
   const [pickedLocation, setPickedLocation] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -108,6 +109,7 @@ export default function PlacesPage() {
   const [editingPlace, setEditingPlace] = useState(null);
   const [editName, setEditName] = useState('');
   const [editNotes, setEditNotes] = useState('');
+  const [editBenefit, setEditBenefit] = useState('');
   const [editAddressValue, setEditAddressValue] = useState('');
   const [editPickedLocation, setEditPickedLocation] = useState(null);
   const [editBusy, setEditBusy] = useState(false);
@@ -209,7 +211,7 @@ export default function PlacesPage() {
 
       if (!q) return true;
 
-      const hay = `${p.name || ''} ${p.address || ''} ${p.notes || ''}`.toLowerCase();
+      const hay = `${p.name || ''} ${p.address || ''} ${p.notes || ''} ${p.benefit || ''}`.toLowerCase();
       return hay.includes(q);
     });
   }, [places, searchText, cityFilter]);
@@ -218,6 +220,7 @@ export default function PlacesPage() {
     setEditingPlace(p);
     setEditName(p?.name || '');
     setEditNotes(p?.notes || '');
+    setEditBenefit(p?.benefit || '');
     setEditAddressValue(p?.address || '');
     setEditPickedLocation(null);
     setEditError('');
@@ -265,6 +268,7 @@ export default function PlacesPage() {
       const update = {
         name: (editName || '').trim(),
         notes: (editNotes || '').trim(),
+        benefit: (editBenefit || '').trim(),
         updatedAt: serverTimestamp(),
         updatedByUid: user.uid,
         updatedByEmail: user.email || null,
@@ -344,6 +348,7 @@ export default function PlacesPage() {
       await addDoc(collection(db, 'places'), {
         name: name.trim(),
         notes: notes.trim(),
+        benefit: benefit.trim(),
         address: pickedLocation.address,
         city: (pickedLocation.city || '').trim(),
         lat: pickedLocation.lat,
@@ -355,6 +360,7 @@ export default function PlacesPage() {
 
       setName('');
       setNotes('');
+      setBenefit('');
       setAddressValue('');
       setPickedLocation(null);
     } catch (e2) {
@@ -467,6 +473,16 @@ export default function PlacesPage() {
               />
             </div>
 
+            <div className="field">
+              <label className="field__label">Etu/Alennus (valinnainen)</label>
+              <input
+                className="field__input"
+                value={benefit}
+                onChange={(e) => setBenefit(e.target.value)}
+                placeholder="Esim. -10% opiskelijalle, lounasetu..."
+              />
+            </div>
+
             <button className="btn btn--primary" type="submit" disabled={!canSave || saving}>
               {saving ? 'Tallennetaan...' : 'Tallenna paikka'}
             </button>
@@ -546,6 +562,12 @@ export default function PlacesPage() {
                   >
                     <div className="list__name">{p.name}</div>
                     <div className="list__addr">{displayAddress(p) || p.address}</div>
+                    {p.benefit ? (
+                      <div className="list__notes">
+                        <strong>Etu:</strong> {String(p.benefit).slice(0, 90)}
+                        {String(p.benefit).length > 90 ? '…' : ''}
+                      </div>
+                    ) : null}
                     {p.notes ? <div className="list__notes">{String(p.notes).slice(0, 90)}{String(p.notes).length > 90 ? '…' : ''}</div> : null}
                   </button>
 
@@ -595,6 +617,14 @@ export default function PlacesPage() {
 
             <div className="detail__body">
               <div style={{ opacity: 0.9 }}>{displayAddress(selectedPlace) || selectedPlace.address}</div>
+              {selectedPlace.benefit ? (
+                <div style={{ marginTop: 10 }}>
+                  <div className="nav-muted" style={{ marginBottom: 4 }}>
+                    Etu/Alennus
+                  </div>
+                  <div>{selectedPlace.benefit}</div>
+                </div>
+              ) : null}
               {selectedPlace.notes ? (
                 <div style={{ marginTop: 10 }}>
                   <div className="nav-muted" style={{ marginBottom: 4 }}>
@@ -644,6 +674,16 @@ export default function PlacesPage() {
                 rows={3}
                 value={editNotes}
                 onChange={(e) => setEditNotes(e.target.value)}
+              />
+            </div>
+
+            <div className="field">
+              <label className="field__label">Etu/Alennus</label>
+              <input
+                className="field__input"
+                value={editBenefit}
+                onChange={(e) => setEditBenefit(e.target.value)}
+                placeholder="Esim. -10% opiskelijalle, lounasetu..."
               />
             </div>
 
