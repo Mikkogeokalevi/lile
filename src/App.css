@@ -472,6 +472,24 @@
   font-size: 0.9rem;
 }
 
+.multi-marker {
+  background: transparent;
+  border: 0;
+}
+
+.multi-marker__bubble {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #0b1220;
+  background: #8ab4ff;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+
 .btn {
   padding: 12px 14px;
   border-radius: 10px;

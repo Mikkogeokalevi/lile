@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -51,11 +50,30 @@ export default function PlacesMap({ places, onSelectPlace, onSelectClusterPlaces
     );
   }
 
-  const placesById = useMemo(() => {
-    const m = new Map();
-    for (const p of places || []) m.set(p.id, p);
-    return m;
+  const groupedPlaces = useMemo(() => {
+    const groups = new Map();
+    for (const p of places || []) {
+      if (!Number.isFinite(p.lat) || !Number.isFinite(p.lng)) continue;
+      const key = `${Number(p.lat).toFixed(5)},${Number(p.lng).toFixed(5)}`;
+      const list = groups.get(key) || [];
+      list.push(p);
+      groups.set(key, list);
+    }
+    return Array.from(groups.entries()).map(([key, list]) => {
+      const [latStr, lngStr] = key.split(',');
+      return { key, lat: Number(latStr), lng: Number(lngStr), list };
+    });
   }, [places]);
+
+  function multiIcon(count) {
+    return L.divIcon({
+      className: 'multi-marker',
+      html: `<div class="multi-marker__bubble">${count}</div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      popupAnchor: [0, -34],
+    });
+  }
 
   return (
     <div className="map">
@@ -86,46 +104,46 @@ export default function PlacesMap({ places, onSelectPlace, onSelectClusterPlaces
           </Marker>
         ) : null}
 
-        <MarkerClusterGroup
-          chunkedLoading
-          maxClusterRadius={50}
-          disableClusteringAtZoom={13}
-          eventHandlers={{
-            clusterclick: (e) => {
-              const markers = e.layer.getAllChildMarkers();
-              const ids = markers
-                .map((m) => m?.options?.placeId)
-                .filter(Boolean);
-              const unique = Array.from(new Set(ids));
-              const list = unique.map((id) => placesById.get(id)).filter(Boolean);
-              if (list.length === 1) onSelectPlace(list[0]);
-              else if (list.length > 1) onSelectClusterPlaces(list);
-            },
-          }}
-        >
-          {(places || [])
-            .filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng))
-            .map((p) => (
-              <Marker
-                key={p.id}
-                position={[p.lat, p.lng]}
-                placeId={p.id}
-                eventHandlers={{
-                  click: () => onSelectPlace(p),
-                }}
-              >
-                <Popup>
-                  <div style={{ display: 'grid', gap: 6 }}>
-                    <strong>{p.name}</strong>
-                    <div style={{ opacity: 0.85 }}>{p.address}</div>
-                    <button className="btn btn--secondary" onClick={() => onSelectPlace(p)}>
-                      Avaa
-                    </button>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-        </MarkerClusterGroup>
+        {groupedPlaces.map((g) =>
+          g.list.length === 1 ? (
+            <Marker
+              key={g.list[0].id}
+              position={[g.lat, g.lng]}
+              placeId={g.list[0].id}
+              eventHandlers={{
+                click: () => onSelectPlace(g.list[0]),
+              }}
+            >
+              <Popup>
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <strong>{g.list[0].name}</strong>
+                  <div style={{ opacity: 0.85 }}>{g.list[0].address}</div>
+                  <button className="btn btn--secondary" onClick={() => onSelectPlace(g.list[0])}>
+                    Avaa
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          ) : (
+            <Marker
+              key={g.key}
+              position={[g.lat, g.lng]}
+              icon={multiIcon(g.list.length)}
+              eventHandlers={{
+                click: () => onSelectClusterPlaces(g.list),
+              }}
+            >
+              <Popup>
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <strong>{g.list.length} paikkaa samalla kohdalla</strong>
+                  <button className="btn btn--secondary" onClick={() => onSelectClusterPlaces(g.list)}>
+                    Avaa lista
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          )
+        )}
       </MapContainer>
     </div>
   );
