@@ -667,6 +667,98 @@
   border-color: rgba(138, 180, 255, 0.35);
 }
 
+.appbar__desktop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appbar__mobile {
+  display: none;
+}
+
+.appbar__menu {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(12, 14, 24, 0.55);
+}
+
+.appbar__menuGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.menu-link {
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 650;
+}
+
+.menu-link.active {
+  background: rgba(138, 180, 255, 0.22);
+  border-color: rgba(138, 180, 255, 0.35);
+}
+
+.menu-sep {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 2px 0;
+}
+
+.menu-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .appbar {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .appbar__logo {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+  }
+
+  .appbar__title {
+    font-size: 1rem;
+  }
+
+  .chip {
+    max-width: 56vw;
+    padding: 7px 9px;
+    font-size: 0.85rem;
+  }
+
+  .appbar__nav {
+    display: none;
+  }
+
+  .appbar__desktop {
+    display: none;
+  }
+
+  .appbar__mobile {
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-meta {
+    justify-content: flex-start;
+  }
+}
+
 .top-nav {
   display: flex;
   gap: 12px;
