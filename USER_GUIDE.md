@@ -37,6 +37,29 @@ Ruokapaikat-osiossa käyttäjät voivat:
 - Tykkäillä ruokapaikoista
 - Ehdottaa ruokapaikan poistoa (tarkistetaan ylläpidossa)
 
+#### 3.1.1 Mahdollisia lisäkenttiä ruokapaikoille (ideoita)
+Jos Ruokapaikkoihin halutaan lisätä myöhemmin lisää tietoa, tässä hyviä vaihtoehtoja:
+
+- **Puhelinnumero**
+  - Hyöty: helppo varata tai kysyä suoraan.
+- **Nettisivu / varauslinkki**
+  - Hyöty: aukioloajat, ruokalistat ja varaus yhdestä paikasta.
+- **Aukioloajat**
+  - Hyöty: näkee nopeasti onko paikka auki.
+  - Vaihtoehto: vapaateksti (esim. “ma–pe 10–20”) tai linkki nettisivuun.
+- **Hintataso**
+  - Hyöty: nopea arvio (esim. €, €€, €€€).
+- **Saatavuus / sopivuus**
+  - Esim. **gluteeniton**, **laktoositon**, **vähähiilihydraattinen**, **proteiinipainotteinen**, **pienet annokset**, **lasten annos**, **takeaway**.
+- **Ketju / konsepti**
+  - Hyöty: jos sama etu toimii monessa kaupungissa.
+- **Esteettömyys / saavutettavuus**
+  - Esim. esteetön sisäänkäynti, inva-WC.
+- **Maksutavat**
+  - Esim. käteinen, kortti, lounasetu.
+
+Suositus: jos halutaan lisätä vain 1–2 kenttää nopeasti, useimmiten hyödyllisimmät ovat **Nettisivu** ja **Aukioloajat** (tai linkki nettisivuun).
+
 ### 3.2 Reseptit
 Reseptit-osiossa käyttäjät voivat:
 - Lisätä uuden reseptin
