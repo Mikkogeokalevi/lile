@@ -612,6 +612,16 @@
   min-width: 0;
 }
 
+.appbar__tagline {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.92rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -675,6 +685,13 @@
 
 .appbar__mobile {
   display: none;
+}
+
+.appbar__menuLabel {
+  display: inline-block;
+  margin-right: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
 .appbar__menu {
@@ -752,6 +769,16 @@
   .appbar__mobile {
     display: flex;
     align-items: center;
+  }
+
+  .appbar__menuLabel {
+    margin-right: 8px;
+    font-size: 0.9rem;
+  }
+
+  .appbar__tagline {
+    font-size: 0.85rem;
+    margin-top: 4px;
   }
 
   .menu-meta {

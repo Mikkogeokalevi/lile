@@ -90,6 +90,9 @@ export default function AppLayout() {
                     aria-expanded={mobileMenuOpen}
                     onClick={() => setMobileMenuOpen((v) => !v)}
                   >
+                    <span className="appbar__menuLabel" aria-hidden="true">
+                      Valikko
+                    </span>
                     {mobileMenuOpen ? (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -136,6 +139,8 @@ export default function AppLayout() {
                 </div>
               </div>
             </div>
+
+            <div className="appbar__tagline">Tämä on työkalu ruokapaikkojen ja reseptien jakamiseen.</div>
 
             <nav className="appbar__nav" aria-label="Päävalikko">
               <NavLink className="nav-pill" to="/" end>
