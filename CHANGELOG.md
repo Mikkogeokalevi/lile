@@ -10,6 +10,7 @@
 ### Muutettu
 - Ruokapaikat: osoitteiden tiivistystä parannettu niin, että katuosoite ja paikkakunta näkyvät useammin oikein.
 - Ruokapaikat: lisätietojen esitystä selkeytetty (label + typografia) listassa ja tietoikkunassa.
+- Ruokapaikat (kartta): paikkamerkinnät näkyvät paremmin jo kauempaa (klusteroinnin asetuksia säädetty).
 
 ## 2026-02-26
 

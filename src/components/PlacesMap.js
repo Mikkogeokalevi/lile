@@ -88,6 +88,8 @@ export default function PlacesMap({ places, onSelectPlace, onSelectClusterPlaces
 
         <MarkerClusterGroup
           chunkedLoading
+          maxClusterRadius={50}
+          disableClusteringAtZoom={13}
           eventHandlers={{
             clusterclick: (e) => {
               const markers = e.layer.getAllChildMarkers();
