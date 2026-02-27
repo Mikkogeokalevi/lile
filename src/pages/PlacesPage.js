@@ -15,8 +15,12 @@ import { useAuth } from '../hooks/useAuth';
 import AddressSearch from '../components/AddressSearch';
 import PlacesMap from '../components/PlacesMap';
 
+const ADMIN_EMAIL = 'toni@kauppinen.info';
+
 export default function PlacesPage() {
   const { user } = useAuth();
+
+  const isAdmin = user?.email && user.email.toLowerCase() === ADMIN_EMAIL;
 
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -429,29 +433,31 @@ export default function PlacesPage() {
                     <div className="list__addr">{p.address}</div>
                   </button>
 
-                  <button
-                    type="button"
-                    className="icon-btn"
-                    aria-label="Muokkaa"
-                    onClick={() => startEdit(p)}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M12 20H21"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
+                  {isAdmin || p.createdByUid === user?.uid ? (
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      aria-label="Muokkaa"
+                      onClick={() => startEdit(p)}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M12 20H21"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  ) : null}
                 </div>
               ))}
             </div>
