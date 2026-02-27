@@ -11,6 +11,7 @@
 - Ruokapaikat: osoitteiden tiivistystä parannettu niin, että katuosoite ja paikkakunta näkyvät useammin oikein.
 - Ruokapaikat: lisätietojen esitystä selkeytetty (label + typografia) listassa ja tietoikkunassa.
 - Ruokapaikat (kartta): paikkamerkinnät näkyvät kauempaa ja samassa kohdassa olevat paikat aukeavat listaksi.
+- Yläpalkki (mobiili): ulkoasua parannettu (logo ja selkeämmät päänavigaation napit).
 
 ## 2026-02-26
 
