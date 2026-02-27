@@ -8,6 +8,7 @@
 
 ### Muutettu
 - Ruokapaikat: osoitteiden tiivistystä parannettu niin, että katuosoite ja paikkakunta näkyvät useammin oikein.
+- Ruokapaikat: lisätietojen esitystä selkeytetty (label + typografia) listassa ja tietoikkunassa.
 
 ## 2026-02-26
 

@@ -613,7 +613,12 @@ export default function PlacesPage() {
                         {String(p.benefit).length > 90 ? '…' : ''}
                       </div>
                     ) : null}
-                    {p.notes ? <div className="list__notes">{String(p.notes).slice(0, 90)}{String(p.notes).length > 90 ? '…' : ''}</div> : null}
+                    {p.notes ? (
+                      <div className="list__notes">
+                        <strong>Lisätiedot:</strong> {String(p.notes).slice(0, 90)}
+                        {String(p.notes).length > 90 ? '…' : ''}
+                      </div>
+                    ) : null}
                   </button>
 
                   <div className="list__actions">
@@ -688,19 +693,15 @@ export default function PlacesPage() {
                 </button>
               </div>
               {selectedPlace.benefit ? (
-                <div style={{ marginTop: 10 }}>
-                  <div className="nav-muted" style={{ marginBottom: 4 }}>
-                    Etu/Alennus
-                  </div>
-                  <div>{selectedPlace.benefit}</div>
+                <div className="detail__section">
+                  <div className="detail__sectionTitle">Etu/Alennus</div>
+                  <div className="detail__sectionBody">{selectedPlace.benefit}</div>
                 </div>
               ) : null}
               {selectedPlace.notes ? (
-                <div style={{ marginTop: 10 }}>
-                  <div className="nav-muted" style={{ marginBottom: 4 }}>
-                    Lisätiedot
-                  </div>
-                  <div>{selectedPlace.notes}</div>
+                <div className="detail__section">
+                  <div className="detail__sectionTitle">Lisätiedot</div>
+                  <div className="detail__sectionBody">{selectedPlace.notes}</div>
                 </div>
               ) : null}
             </div>
