@@ -84,6 +84,13 @@ export default function PlacesPage() {
     return shortAddress(p.address, getCity(p));
   }
 
+  function normalizeUrl(url) {
+    const s = String(url || '').trim();
+    if (!s) return '';
+    if (/^https?:\/\//i.test(s)) return s;
+    return `https://${s}`;
+  }
+
   function changeView(next) {
     setView(next);
     setSelectedPlace(null);
@@ -97,6 +104,8 @@ export default function PlacesPage() {
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
   const [benefit, setBenefit] = useState('');
+  const [website, setWebsite] = useState('');
+  const [hours, setHours] = useState('');
   const [addressValue, setAddressValue] = useState('');
   const [pickedLocation, setPickedLocation] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -111,6 +120,8 @@ export default function PlacesPage() {
   const [editName, setEditName] = useState('');
   const [editNotes, setEditNotes] = useState('');
   const [editBenefit, setEditBenefit] = useState('');
+  const [editWebsite, setEditWebsite] = useState('');
+  const [editHours, setEditHours] = useState('');
   const [editAddressValue, setEditAddressValue] = useState('');
   const [editPickedLocation, setEditPickedLocation] = useState(null);
   const [editBusy, setEditBusy] = useState(false);
@@ -215,7 +226,7 @@ export default function PlacesPage() {
 
       if (!q) return true;
 
-      const hay = `${p.name || ''} ${p.address || ''} ${p.notes || ''} ${p.benefit || ''}`.toLowerCase();
+      const hay = `${p.name || ''} ${p.address || ''} ${p.notes || ''} ${p.benefit || ''} ${p.website || ''} ${p.hours || ''}`.toLowerCase();
       return hay.includes(q);
     });
   }, [places, searchText, cityFilter]);
@@ -225,6 +236,8 @@ export default function PlacesPage() {
     setEditName(p?.name || '');
     setEditNotes(p?.notes || '');
     setEditBenefit(p?.benefit || '');
+    setEditWebsite(p?.website || '');
+    setEditHours(p?.hours || '');
     setEditAddressValue(p?.address || '');
     setEditPickedLocation(null);
     setEditError('');
@@ -273,6 +286,8 @@ export default function PlacesPage() {
         name: (editName || '').trim(),
         notes: (editNotes || '').trim(),
         benefit: (editBenefit || '').trim(),
+        website: (editWebsite || '').trim(),
+        hours: (editHours || '').trim(),
         updatedAt: serverTimestamp(),
         updatedByUid: user.uid,
         updatedByEmail: user.email || null,
@@ -394,6 +409,8 @@ export default function PlacesPage() {
         name: name.trim(),
         notes: notes.trim(),
         benefit: benefit.trim(),
+        website: website.trim(),
+        hours: hours.trim(),
         address: pickedLocation.address,
         city: (pickedLocation.city || '').trim(),
         lat: pickedLocation.lat,
@@ -406,6 +423,8 @@ export default function PlacesPage() {
       setName('');
       setNotes('');
       setBenefit('');
+      setWebsite('');
+      setHours('');
       setAddressValue('');
       setPickedLocation(null);
     } catch (e2) {
@@ -528,6 +547,26 @@ export default function PlacesPage() {
               />
             </div>
 
+            <div className="field">
+              <label className="field__label">Nettisivu (valinnainen)</label>
+              <input
+                className="field__input"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+
+            <div className="field">
+              <label className="field__label">Aukioloajat (valinnainen)</label>
+              <input
+                className="field__input"
+                value={hours}
+                onChange={(e) => setHours(e.target.value)}
+                placeholder="Esim. ma–pe 10–20"
+              />
+            </div>
+
             <button className="btn btn--primary" type="submit" disabled={!canSave || saving}>
               {saving ? 'Tallennetaan...' : 'Tallenna paikka'}
             </button>
@@ -613,6 +652,18 @@ export default function PlacesPage() {
                         {String(p.benefit).length > 90 ? '…' : ''}
                       </div>
                     ) : null}
+                    {p.website ? (
+                      <div className="list__notes">
+                        <strong>Nettisivu:</strong> {String(p.website).slice(0, 60)}
+                        {String(p.website).length > 60 ? '…' : ''}
+                      </div>
+                    ) : null}
+                    {p.hours ? (
+                      <div className="list__notes">
+                        <strong>Aukiolo:</strong> {String(p.hours).slice(0, 90)}
+                        {String(p.hours).length > 90 ? '…' : ''}
+                      </div>
+                    ) : null}
                     {p.notes ? (
                       <div className="list__notes">
                         <strong>Lisätiedot:</strong> {String(p.notes).slice(0, 90)}
@@ -692,6 +743,22 @@ export default function PlacesPage() {
                   👍 {getLikeCount(selectedPlace)}
                 </button>
               </div>
+              {selectedPlace.website ? (
+                <div className="detail__section">
+                  <div className="detail__sectionTitle">Nettisivu</div>
+                  <div className="detail__sectionBody">
+                    <a href={normalizeUrl(selectedPlace.website)} target="_blank" rel="noreferrer">
+                      {String(selectedPlace.website).trim()}
+                    </a>
+                  </div>
+                </div>
+              ) : null}
+              {selectedPlace.hours ? (
+                <div className="detail__section">
+                  <div className="detail__sectionTitle">Aukioloajat</div>
+                  <div className="detail__sectionBody">{selectedPlace.hours}</div>
+                </div>
+              ) : null}
               {selectedPlace.benefit ? (
                 <div className="detail__section">
                   <div className="detail__sectionTitle">Etu/Alennus</div>
@@ -757,6 +824,26 @@ export default function PlacesPage() {
                 value={editBenefit}
                 onChange={(e) => setEditBenefit(e.target.value)}
                 placeholder="Esim. -10% opiskelijalle, lounasetu..."
+              />
+            </div>
+
+            <div className="field">
+              <label className="field__label">Nettisivu</label>
+              <input
+                className="field__input"
+                value={editWebsite}
+                onChange={(e) => setEditWebsite(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+
+            <div className="field">
+              <label className="field__label">Aukioloajat</label>
+              <input
+                className="field__input"
+                value={editHours}
+                onChange={(e) => setEditHours(e.target.value)}
+                placeholder="Esim. ma–pe 10–20"
               />
             </div>
 
