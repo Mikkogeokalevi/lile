@@ -13,13 +13,20 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 
-import { db } from '../firebase';
+import { httpsCallable } from 'firebase/functions';
+
+import { db, functions } from '../firebase';
 
 export default function AdminPage() {
   const [requests, setRequests] = React.useState([]);
   const [statusFilter, setStatusFilter] = React.useState('pending');
   const [busyId, setBusyId] = React.useState('');
   const [error, setError] = React.useState('');
+
+  const [users, setUsers] = React.useState([]);
+  const [userError, setUserError] = React.useState('');
+  const [userBusyId, setUserBusyId] = React.useState('');
+  const [userQuery, setUserQuery] = React.useState('');
 
   React.useEffect(() => {
     const q = query(collection(db, 'placeRemovalRequests'), orderBy('requestedAt', 'desc'));
@@ -36,6 +43,27 @@ export default function AdminPage() {
       }
     );
     return () => unsub();
+  }, []);
+
+  React.useEffect(() => {
+    let active = true;
+    const load = async () => {
+      setUserError('');
+      try {
+        const fn = httpsCallable(functions, 'adminListUsers');
+        const res = await fn({ limit: 200 });
+        const rows = Array.isArray(res?.data?.users) ? res.data.users : [];
+        if (!active) return;
+        setUsers(rows);
+      } catch (e) {
+        if (!active) return;
+        setUserError(e?.message || 'Käyttäjien haku epäonnistui.');
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const filtered = React.useMemo(() => {
@@ -90,6 +118,57 @@ export default function AdminPage() {
     }
   }
 
+  async function toggleBlocked(u) {
+    if (!u?.uid) return;
+    const nextBlocked = !u.disabled;
+    const emailLabel = u.email ? ` (${u.email})` : '';
+    const ok = window.confirm(
+      nextBlocked
+        ? `Estetäänkö käyttäjä${emailLabel} kirjautumasta?`
+        : `Sallitaanko käyttäjän${emailLabel} kirjautua taas?`
+    );
+    if (!ok) return;
+
+    setUserBusyId(u.uid);
+    setUserError('');
+    try {
+      const fn = httpsCallable(functions, 'adminSetUserBlocked');
+      await fn({ uid: u.uid, blocked: nextBlocked });
+      setUsers((prev) => prev.map((row) => (row.uid === u.uid ? { ...row, disabled: nextBlocked } : row)));
+    } catch (e) {
+      setUserError(e?.message || 'Toiminto epäonnistui.');
+    } finally {
+      setUserBusyId('');
+    }
+  }
+
+  async function deleteUser(u) {
+    if (!u?.uid) return;
+    const emailLabel = u.email ? ` (${u.email})` : '';
+    const ok = window.confirm(
+      `Poistetaanko käyttäjä${emailLabel} kokonaan?\n\nTätä ei voi perua.`
+    );
+    if (!ok) return;
+
+    setUserBusyId(u.uid);
+    setUserError('');
+    try {
+      const fn = httpsCallable(functions, 'adminDeleteUser');
+      await fn({ uid: u.uid });
+      setUsers((prev) => prev.filter((row) => row.uid !== u.uid));
+    } catch (e) {
+      setUserError(e?.message || 'Poisto epäonnistui.');
+    } finally {
+      setUserBusyId('');
+    }
+  }
+
+  const filteredUsers = React.useMemo(() => {
+    const q = String(userQuery || '').trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((u) => (u.email || '').toLowerCase().includes(q));
+  }, [users, userQuery]);
+
   async function reject(req) {
     if (!req?.id) return;
     setBusyId(req.id);
@@ -110,6 +189,59 @@ export default function AdminPage() {
     <div>
       <h2>Admin</h2>
       <p>Tämä näkymä on vain ylläpitäjälle.</p>
+
+      <h3>Käyttäjät</h3>
+
+      <div className="field" style={{ marginBottom: 12, maxWidth: 420 }}>
+        <label className="field__label">Hae sähköpostilla</label>
+        <input
+          className="field__input"
+          value={userQuery}
+          onChange={(e) => setUserQuery(e.target.value)}
+          placeholder="esim. nimi@domain.fi"
+        />
+      </div>
+
+      {userError ? <div className="error">{userError}</div> : null}
+
+      {filteredUsers.length === 0 ? <div className="nav-muted">Ei käyttäjiä.</div> : null}
+
+      <div className="places-list" style={{ marginTop: 12 }}>
+        {filteredUsers.map((u) => {
+          const busy = userBusyId === u.uid;
+          const created = u.creationTime ? new Date(u.creationTime).toLocaleString('fi-FI') : '';
+          const last = u.lastSignInTime ? new Date(u.lastSignInTime).toLocaleString('fi-FI') : '';
+          return (
+            <div key={u.uid} className="place-item">
+              <div className="place-main">
+                <div className="place-title">{u.email || '(ei sähköpostia)'}</div>
+                <div className="place-sub">
+                  <span className="badge">{u.disabled ? 'blocked' : 'active'}</span>
+                  {created ? (
+                    <span className="nav-muted" style={{ marginLeft: 8 }}>
+                      Rek.: {created}
+                    </span>
+                  ) : null}
+                  {last ? (
+                    <span className="nav-muted" style={{ marginLeft: 8 }}>
+                      Viime: {last}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="place-actions" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button className="btn btn--secondary" type="button" onClick={() => toggleBlocked(u)} disabled={busy}>
+                  {u.disabled ? 'Salli' : 'Estä'}
+                </button>
+                <button className="btn" type="button" onClick={() => deleteUser(u)} disabled={busy}>
+                  Poista
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       <h3>Ruokapaikkojen poistopyynnöt</h3>
 
