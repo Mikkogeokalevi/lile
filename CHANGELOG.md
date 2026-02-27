@@ -1,5 +1,14 @@
 # Versiohistoria
 
+## 2026-02-27
+
+### Lisätty
+- Ruokapaikat: uusi kenttä “Etu/Alennus” paikoille (näkyy listassa ja tietoikkunassa).
+- Ruokapaikat: paikkoja voi peukuttaa (näkyy peukkujen määrä listassa ja tietoikkunassa).
+
+### Muutettu
+- Ruokapaikat: osoitteiden tiivistystä parannettu niin, että katuosoite ja paikkakunta näkyvät useammin oikein.
+
 ## 2026-02-26
 
 ### Lisätty
