@@ -25,3 +25,6 @@
 - Ruokapaikkoihin haku (vapaa tekstihaku) ja paikkakunta-suodatin.
 - Karttaan “Paikanna minut” -nappi (kertapaikannus).
 - Ohjekirja-sivu sovelluksen käyttöohjeille.
+
+### Muutettu
+- Ruokapaikat (mobiili): listanäkymässä näytetään lisätiedot ja paikan painallus avaa selkeän asiakaskortin; Kartta/Lista-vaihto ei näytä vahingossa vanhaa valintaa; “Lisää uusi paikka” on oletuksena suljettu.

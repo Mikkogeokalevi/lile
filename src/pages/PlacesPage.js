@@ -25,6 +25,12 @@ export default function PlacesPage() {
 
   const isAdmin = user?.email && user.email.toLowerCase() === ADMIN_EMAIL;
 
+  function changeView(next) {
+    setView(next);
+    setSelectedPlace(null);
+    setClusterPlaces([]);
+  }
+
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -342,21 +348,21 @@ export default function PlacesPage() {
         <button
           type="button"
           className={view === 'map' ? 'tab tab--active' : 'tab'}
-          onClick={() => setView('map')}
+          onClick={() => changeView('map')}
         >
           Kartta
         </button>
         <button
           type="button"
           className={view === 'list' ? 'tab tab--active' : 'tab'}
-          onClick={() => setView('list')}
+          onClick={() => changeView('list')}
         >
           Lista
         </button>
       </div>
 
       <div className={view === 'map' ? 'grid-2' : 'grid-1'}>
-        <details className="card disclosure" open>
+        <details className="card disclosure">
           <summary className="disclosure__summary">Lisää uusi paikka</summary>
           <div className="disclosure__body">
 
@@ -494,6 +500,7 @@ export default function PlacesPage() {
                   >
                     <div className="list__name">{p.name}</div>
                     <div className="list__addr">{p.address}</div>
+                    {p.notes ? <div className="list__notes">{String(p.notes).slice(0, 90)}{String(p.notes).length > 90 ? '…' : ''}</div> : null}
                   </button>
 
                   {isAdmin || p.createdByUid === user?.uid ? (
@@ -523,6 +530,21 @@ export default function PlacesPage() {
                   ) : null}
                 </div>
               ))}
+            </div>
+          ) : null}
+
+          {selectedPlace ? (
+            <div className="detail" style={{ marginTop: 12 }}>
+              <div className="detail__header">
+                <strong>{selectedPlace.name}</strong>
+                <button className="btn btn--ghost" type="button" onClick={() => setSelectedPlace(null)}>
+                  Sulje
+                </button>
+              </div>
+              <div className="detail__body">
+                <div style={{ opacity: 0.9 }}>{selectedPlace.address}</div>
+                {selectedPlace.notes ? <div style={{ marginTop: 8 }}>{selectedPlace.notes}</div> : null}
+              </div>
             </div>
           ) : null}
         </div>

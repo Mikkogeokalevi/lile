@@ -236,6 +236,12 @@
   font-size: 0.95rem;
 }
 
+.list__notes {
+  margin-top: 6px;
+  opacity: 0.9;
+  font-size: 0.95rem;
+}
+
 .detail,
 .cluster {
   margin-top: 10px;
