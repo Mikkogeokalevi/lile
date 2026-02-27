@@ -359,12 +359,27 @@
   position: relative;
   width: min(560px, calc(100% - 24px));
   border-radius: 14px;
-  padding: 14px;
-  background: rgba(15, 16, 32, 0.98);
+  padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+  background: rgba(23, 26, 36, 0.98);
   display: grid;
   gap: 12px;
+}
+
+.modal__panel--sheet {
+  width: min(680px, calc(100% - 24px));
+}
+
+@media (max-width: 520px) {
+  .modal {
+    place-items: end center;
+  }
+
+  .modal__panel--sheet {
+    width: 100%;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
 }
 
 .modal__header {

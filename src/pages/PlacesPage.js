@@ -45,7 +45,7 @@ export default function PlacesPage() {
   const [searchText, setSearchText] = useState('');
   const [cityFilter, setCityFilter] = useState('');
 
-  const [view, setView] = useState('map');
+  const [view, setView] = useState('list');
 
   const [editingPlace, setEditingPlace] = useState(null);
   const [editName, setEditName] = useState('');
@@ -313,38 +313,14 @@ export default function PlacesPage() {
         Lisää ja selaa ruokapaikkoja. Kartasta voit avata paikan klikkaamalla markeria.
       </p>
 
-      <details className="card disclosure" style={{ marginBottom: 16 }}>
-        <summary className="disclosure__summary">Haku</summary>
-        <div className="disclosure__body">
-          <div className="filters">
-            <div className="field">
-              <label className="field__label">Hae (nimi, osoite, lisätiedot)</label>
-              <input
-                className="field__input"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Esim. lahti, pizza, ABC..."
-              />
-            </div>
-
-            <div className="field">
-              <label className="field__label">Paikkakunta</label>
-              <select className="field__input" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}>
-                <option value="">Kaikki</option>
-                {cities.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="hint">Näytetään {filteredPlaces.length} / {places.length}</div>
-        </div>
-      </details>
-
       <div className="tabs" style={{ marginBottom: 16 }}>
+        <button
+          type="button"
+          className={view === 'list' ? 'tab tab--active' : 'tab'}
+          onClick={() => changeView('list')}
+        >
+          Lista
+        </button>
         <button
           type="button"
           className={view === 'map' ? 'tab tab--active' : 'tab'}
@@ -354,17 +330,49 @@ export default function PlacesPage() {
         </button>
         <button
           type="button"
-          className={view === 'list' ? 'tab tab--active' : 'tab'}
-          onClick={() => changeView('list')}
+          className={view === 'add' ? 'tab tab--active' : 'tab'}
+          onClick={() => changeView('add')}
         >
-          Lista
+          Lisää
         </button>
       </div>
 
-      <div className={view === 'map' ? 'grid-2' : 'grid-1'}>
-        <details className="card disclosure">
-          <summary className="disclosure__summary">Lisää uusi paikka</summary>
+      {view === 'list' || view === 'map' ? (
+        <details className="card disclosure" style={{ marginBottom: 16 }}>
+          <summary className="disclosure__summary">Haku</summary>
           <div className="disclosure__body">
+            <div className="filters">
+              <div className="field">
+                <label className="field__label">Hae (nimi, osoite, lisätiedot)</label>
+                <input
+                  className="field__input"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  placeholder="Esim. lahti, pizza, ABC..."
+                />
+              </div>
+
+              <div className="field">
+                <label className="field__label">Paikkakunta</label>
+                <select className="field__input" value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}>
+                  <option value="">Kaikki</option>
+                  {cities.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="hint">Näytetään {filteredPlaces.length} / {places.length}</div>
+          </div>
+        </details>
+      ) : null}
+
+      {view === 'add' ? (
+        <div className="card">
+          <h3>Lisää uusi paikka</h3>
 
           <form onSubmit={onAddPlace} className="form">
             <div className="field">
@@ -387,11 +395,7 @@ export default function PlacesPage() {
                   setAddressValue(picked.label);
                 }}
               />
-              {pickedLocation ? (
-                <div className="hint">
-                  Valittu: {pickedLocation.address}
-                </div>
-              ) : null}
+              {pickedLocation ? <div className="hint">Valittu: {pickedLocation.address}</div> : null}
             </div>
 
             <div className="field">
@@ -411,72 +415,56 @@ export default function PlacesPage() {
 
             {saveError ? <div className="error">{saveError}</div> : null}
           </form>
-          </div>
-        </details>
+        </div>
+      ) : null}
 
-        {view === 'map' ? (
-          <div className="card">
-            <h3>Kartta</h3>
-            <PlacesMap
-              places={filteredPlaces.map((p) => ({
-                ...p,
-                lat: typeof p.lat === 'number' ? p.lat : Number(p.lat),
-                lng: typeof p.lng === 'number' ? p.lng : Number(p.lng),
-              }))}
-              onSelectPlace={(p) => {
-                setSelectedPlace(p);
-                setClusterPlaces([]);
-              }}
-              onSelectClusterPlaces={(list) => {
-                setClusterPlaces(list);
-                setSelectedPlace(null);
-              }}
-            />
+      {view === 'map' ? (
+        <div className="card">
+          <h3>Kartta</h3>
+          <PlacesMap
+            places={filteredPlaces.map((p) => ({
+              ...p,
+              lat: typeof p.lat === 'number' ? p.lat : Number(p.lat),
+              lng: typeof p.lng === 'number' ? p.lng : Number(p.lng),
+            }))}
+            onSelectPlace={(p) => {
+              setSelectedPlace(p);
+              setClusterPlaces([]);
+            }}
+            onSelectClusterPlaces={(list) => {
+              setClusterPlaces(list);
+              setSelectedPlace(null);
+            }}
+          />
 
-            {clusterPlaces.length ? (
-              <div className="cluster">
-                <div className="cluster__header">
-                  <strong>{clusterPlaces.length} paikkaa samalla alueella</strong>
-                  <button className="btn btn--ghost" type="button" onClick={() => setClusterPlaces([])}>
-                    Sulje
-                  </button>
-                </div>
-                <div className="cluster__list">
-                  {clusterPlaces.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      className="cluster__item"
-                      onClick={() => {
-                        setSelectedPlace(p);
-                        setClusterPlaces([]);
-                      }}
-                    >
-                      <div className="cluster__name">{p.name}</div>
-                      <div className="cluster__addr">{p.address}</div>
-                    </button>
-                  ))}
-                </div>
+          {clusterPlaces.length ? (
+            <div className="cluster">
+              <div className="cluster__header">
+                <strong>{clusterPlaces.length} paikkaa samalla alueella</strong>
+                <button className="btn btn--ghost" type="button" onClick={() => setClusterPlaces([])}>
+                  Sulje
+                </button>
               </div>
-            ) : null}
-
-            {selectedPlace ? (
-              <div className="detail">
-                <div className="detail__header">
-                  <strong>{selectedPlace.name}</strong>
-                  <button className="btn btn--ghost" type="button" onClick={() => setSelectedPlace(null)}>
-                    Sulje
+              <div className="cluster__list">
+                {clusterPlaces.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className="cluster__item"
+                    onClick={() => {
+                      setSelectedPlace(p);
+                      setClusterPlaces([]);
+                    }}
+                  >
+                    <div className="cluster__name">{p.name}</div>
+                    <div className="cluster__addr">{p.address}</div>
                   </button>
-                </div>
-                <div className="detail__body">
-                  <div style={{ opacity: 0.9 }}>{selectedPlace.address}</div>
-                  {selectedPlace.notes ? <div style={{ marginTop: 8 }}>{selectedPlace.notes}</div> : null}
-                </div>
+                ))}
               </div>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {view === 'list' ? (
         <div className="card" style={{ marginTop: 16 }}>
@@ -533,20 +521,33 @@ export default function PlacesPage() {
             </div>
           ) : null}
 
-          {selectedPlace ? (
-            <div className="detail" style={{ marginTop: 12 }}>
-              <div className="detail__header">
-                <strong>{selectedPlace.name}</strong>
-                <button className="btn btn--ghost" type="button" onClick={() => setSelectedPlace(null)}>
-                  Sulje
+        </div>
+      ) : null}
+
+      {selectedPlace ? (
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal__backdrop" onClick={() => setSelectedPlace(null)} />
+          <div className="modal__panel modal__panel--sheet">
+            <div className="modal__header">
+              <strong>{selectedPlace.name}</strong>
+              <button className="btn btn--ghost" type="button" onClick={() => setSelectedPlace(null)}>
+                Sulje
+              </button>
+            </div>
+
+            <div className="detail__body">
+              <div style={{ opacity: 0.9 }}>{selectedPlace.address}</div>
+              {selectedPlace.notes ? <div style={{ marginTop: 8 }}>{selectedPlace.notes}</div> : null}
+            </div>
+
+            {(isAdmin || selectedPlace.createdByUid === user?.uid) && view === 'list' ? (
+              <div style={{ marginTop: 12 }}>
+                <button className="btn" type="button" onClick={() => startEdit(selectedPlace)}>
+                  Muokkaa
                 </button>
               </div>
-              <div className="detail__body">
-                <div style={{ opacity: 0.9 }}>{selectedPlace.address}</div>
-                {selectedPlace.notes ? <div style={{ marginTop: 8 }}>{selectedPlace.notes}</div> : null}
-              </div>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </div>
       ) : null}
 
