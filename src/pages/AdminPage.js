@@ -1,5 +1,17 @@
 import React from 'react';
-import { collection, deleteDoc, doc, onSnapshot, orderBy, query, serverTimestamp, updateDoc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
 
 import { db } from '../firebase';
 
@@ -17,6 +29,7 @@ export default function AdminPage() {
         const rows = [];
         snap.forEach((d) => rows.push({ id: d.id, ...d.data() }));
         setRequests(rows);
+        setError('');
       },
       (e) => {
         setError(e?.message || 'Poistopyyntöjen haku epäonnistui.');
@@ -45,10 +58,31 @@ export default function AdminPage() {
       if (req.placeId) {
         await deleteDoc(doc(db, 'places', req.placeId));
       }
-      await updateDoc(doc(db, 'placeRemovalRequests', req.id), {
-        status: 'approved',
-        resolvedAt: serverTimestamp(),
-      });
+
+      // Resolve all pending requests for the same place (prevents duplicates lingering)
+      if (req.placeId) {
+        const q = query(
+          collection(db, 'placeRemovalRequests'),
+          where('placeId', '==', req.placeId),
+          where('status', '==', 'pending')
+        );
+        const snap = await getDocs(q);
+        const batch = writeBatch(db);
+        let updatedAny = false;
+        snap.forEach((d) => {
+          batch.update(d.ref, { status: 'approved', resolvedAt: serverTimestamp() });
+          updatedAny = true;
+        });
+        if (!updatedAny) {
+          batch.update(doc(db, 'placeRemovalRequests', req.id), { status: 'approved', resolvedAt: serverTimestamp() });
+        }
+        await batch.commit();
+      } else {
+        await updateDoc(doc(db, 'placeRemovalRequests', req.id), {
+          status: 'approved',
+          resolvedAt: serverTimestamp(),
+        });
+      }
     } catch (e) {
       setError(e?.message || 'Hyväksyntä epäonnistui.');
     } finally {

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   limit,
   onSnapshot,
@@ -218,6 +219,27 @@ export default function PlacesPage() {
       setEditError(e?.message || 'Tallennus epäonnistui.');
     } finally {
       setEditBusy(false);
+    }
+  }
+
+  async function adminDeletePlace() {
+    if (!user || !editingPlace) return;
+    if (!isAdmin) return;
+
+    const placeLabel = editingPlace.name ? `“${editingPlace.name}”` : 'tämä paikka';
+    const ok = window.confirm(`Poistetaanko ${placeLabel}?\n\nTätä ei voi perua.`);
+    if (!ok) return;
+
+    setRequestBusy(true);
+    setRequestError('');
+    setRequestSuccess('');
+    try {
+      await deleteDoc(doc(db, 'places', editingPlace.id));
+      setEditingPlace(null);
+    } catch (e) {
+      setRequestError(e?.message || 'Poisto epäonnistui.');
+    } finally {
+      setRequestBusy(false);
     }
   }
 
@@ -553,35 +575,41 @@ export default function PlacesPage() {
                 {editBusy ? 'Tallennetaan...' : 'Tallenna'}
               </button>
 
-              <button
-                className="btn btn--secondary"
-                type="button"
-                onClick={requestRemoval}
-                disabled={requestBusy || !!pendingRemovalRequest}
-              >
-                {requestBusy
-                  ? 'Lähetetään...'
-                  : pendingRemovalRequest
-                    ? 'Poistopyyntö lähetetty'
-                    : 'Pyydä poistoa'}
-              </button>
+              {isAdmin ? (
+                <button className="btn btn--secondary" type="button" onClick={adminDeletePlace} disabled={requestBusy}>
+                  {requestBusy ? 'Poistetaan...' : 'Poista paikka'}
+                </button>
+              ) : (
+                <button
+                  className="btn btn--secondary"
+                  type="button"
+                  onClick={requestRemoval}
+                  disabled={requestBusy || !!pendingRemovalRequest}
+                >
+                  {requestBusy
+                    ? 'Lähetetään...'
+                    : pendingRemovalRequest
+                      ? 'Poistopyyntö lähetetty'
+                      : 'Pyydä poistoa'}
+                </button>
+              )}
             </div>
 
             {editError ? <div className="error">{editError}</div> : null}
             {requestError ? <div className="error">{requestError}</div> : null}
             {requestSuccess ? <div className="hint">{requestSuccess}</div> : null}
 
-            {pendingRemovalRequest ? (
+            {!isAdmin && pendingRemovalRequest ? (
               <div className="hint" style={{ marginTop: 8 }}>
                 Poistopyyntö odottaa käsittelyä.
               </div>
             ) : null}
-            {!pendingRemovalRequest && pendingRemovalError ? (
+            {!isAdmin && !pendingRemovalRequest && pendingRemovalError ? (
               <div className="hint" style={{ marginTop: 8 }}>
                 Poistopyynnön tilaa ei voitu tarkistaa.
               </div>
             ) : null}
-            {!requestError && !requestBusy ? (
+            {!isAdmin && !requestError && !requestBusy ? (
               <div className="hint">Poistopyyntö menee ylläpitäjälle hyväksyttäväksi.</div>
             ) : null}
           </div>
