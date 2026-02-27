@@ -25,6 +25,27 @@ export default function PlacesPage() {
 
   const isAdmin = user?.email && user.email.toLowerCase() === ADMIN_EMAIL;
 
+  function shortAddress(address, city) {
+    const a = (address || '').trim();
+    const c = (city || '').trim();
+    if (!a && !c) return '';
+
+    if (a.includes(',')) {
+      const parts = a.split(',').map((p) => p.trim()).filter(Boolean);
+      const street = parts[0] || '';
+      const cityPart = c || parts.find((p) => /\d{5}|\b[A-Za-zÅÄÖåäö\- ]+\b/.test(p)) || '';
+      return [street, cityPart].filter(Boolean).join(', ');
+    }
+
+    if (c) return `${a}, ${c}`;
+    return a;
+  }
+
+  function displayAddress(p) {
+    if (!p) return '';
+    return shortAddress(p.address, p.city);
+  }
+
   function changeView(next) {
     setView(next);
     setSelectedPlace(null);
@@ -457,7 +478,7 @@ export default function PlacesPage() {
                     }}
                   >
                     <div className="cluster__name">{p.name}</div>
-                    <div className="cluster__addr">{p.address}</div>
+                    <div className="cluster__addr">{displayAddress(p) || p.address}</div>
                   </button>
                 ))}
               </div>
@@ -487,7 +508,7 @@ export default function PlacesPage() {
                     }}
                   >
                     <div className="list__name">{p.name}</div>
-                    <div className="list__addr">{p.address}</div>
+                    <div className="list__addr">{displayAddress(p) || p.address}</div>
                     {p.notes ? <div className="list__notes">{String(p.notes).slice(0, 90)}{String(p.notes).length > 90 ? '…' : ''}</div> : null}
                   </button>
 
@@ -536,8 +557,15 @@ export default function PlacesPage() {
             </div>
 
             <div className="detail__body">
-              <div style={{ opacity: 0.9 }}>{selectedPlace.address}</div>
-              {selectedPlace.notes ? <div style={{ marginTop: 8 }}>{selectedPlace.notes}</div> : null}
+              <div style={{ opacity: 0.9 }}>{displayAddress(selectedPlace) || selectedPlace.address}</div>
+              {selectedPlace.notes ? (
+                <div style={{ marginTop: 10 }}>
+                  <div className="nav-muted" style={{ marginBottom: 4 }}>
+                    Lisätiedot
+                  </div>
+                  <div>{selectedPlace.notes}</div>
+                </div>
+              ) : null}
             </div>
 
             {(isAdmin || selectedPlace.createdByUid === user?.uid) && view === 'list' ? (

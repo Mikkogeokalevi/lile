@@ -27,4 +27,4 @@
 - Ohjekirja-sivu sovelluksen käyttöohjeille.
 
 ### Muutettu
-- Ruokapaikat (mobiili): selkeämmät välilehdet (Lista/Kartta/Lisää), haku suodattaa sekä listaa että karttaa ja paikan painallus avaa tiedot omassa tietoikkunassa; “Lisää uusi paikka” ei aukea oletuksena.
+- Ruokapaikat (mobiili): selkeämmät välilehdet (Lista/Kartta/Lisää), haku suodattaa sekä listaa että karttaa ja paikan painallus avaa tiedot omassa tietoikkunassa; osoitteet näytetään tiiviimmin ja lisätiedot on selkeämmin esillä; “Lisää uusi paikka” ei aukea oletuksena.
