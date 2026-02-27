@@ -84,7 +84,7 @@ export default function AppLayout() {
 
                 <div className="appbar__mobile">
                   <button
-                    className="icon-btn"
+                    className="icon-btn appbar__menuBtn"
                     type="button"
                     aria-label={mobileMenuOpen ? 'Sulje valikko' : 'Avaa valikko'}
                     aria-expanded={mobileMenuOpen}

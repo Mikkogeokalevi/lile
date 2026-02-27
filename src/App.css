@@ -687,6 +687,16 @@
   display: none;
 }
 
+.appbar__menuBtn {
+  width: auto;
+  min-width: 46px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
 .appbar__menuLabel {
   display: inline-block;
   margin-right: 8px;
@@ -783,6 +793,12 @@
 
   .menu-meta {
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 360px) {
+  .appbar__menuLabel {
+    display: none;
   }
 }
 
