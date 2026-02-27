@@ -32,9 +32,46 @@ export default function PlacesPage() {
 
     if (a.includes(',')) {
       const parts = a.split(',').map((p) => p.trim()).filter(Boolean);
-      const street = parts[0] || '';
-      const cityPart = c || parts.find((p) => /\d{5}|\b[A-Za-zÅÄÖåäö\- ]+\b/.test(p)) || '';
-      return [street, cityPart].filter(Boolean).join(', ');
+      const skip = (p) => {
+        if (!p) return true;
+        if (/suomi/i.test(p)) return true;
+        if (/manner-suomi/i.test(p)) return true;
+        if (/maakunta/i.test(p)) return true;
+        if (/seutukunta/i.test(p)) return true;
+        if (/\b(finland)\b/i.test(p)) return true;
+        if (/\b(paijat-hame|päijät-häme)\b/i.test(p)) return true;
+        return false;
+      };
+
+      const isOnlyNumber = (p) => /^\d+[a-zA-Z]?$/.test(String(p || '').trim());
+      const looksLikeStreet = (p) =>
+        /(katu|tie|polku|kuja|väylä|valtatie|raitti|bulevardi|tori|ranta|rinne|kaari)\b/i.test(p) ||
+        (/[A-Za-zÅÄÖåäö]/.test(p) && /\d/.test(p));
+
+      let street = '';
+      for (let i = 0; i < parts.length; i += 1) {
+        const p = parts[i];
+        if (skip(p)) continue;
+
+        if (looksLikeStreet(p)) {
+          if (isOnlyNumber(p) && i + 1 < parts.length && looksLikeStreet(parts[i + 1])) {
+            street = `${parts[i + 1]} ${p}`;
+          } else if (!isOnlyNumber(p) && i + 1 < parts.length && isOnlyNumber(parts[i + 1])) {
+            street = `${p} ${parts[i + 1]}`;
+          } else {
+            street = p;
+          }
+          break;
+        }
+
+        if (isOnlyNumber(p) && i + 1 < parts.length && looksLikeStreet(parts[i + 1])) {
+          street = `${parts[i + 1]} ${p}`;
+          break;
+        }
+      }
+
+      const cityPart = c || '';
+      return [street || parts.find((p) => !skip(p)) || a, cityPart].filter(Boolean).join(', ');
     }
 
     if (c) return `${a}, ${c}`;
@@ -43,7 +80,7 @@ export default function PlacesPage() {
 
   function displayAddress(p) {
     if (!p) return '';
-    return shortAddress(p.address, p.city);
+    return shortAddress(p.address, getCity(p));
   }
 
   function changeView(next) {
