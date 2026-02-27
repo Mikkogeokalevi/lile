@@ -8,6 +8,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   updateDoc,
   where,
@@ -122,6 +123,9 @@ export default function PlacesPage() {
 
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [clusterPlaces, setClusterPlaces] = useState([]);
+
+  const [likeBusyId, setLikeBusyId] = useState('');
+  const [likeError, setLikeError] = useState('');
 
   useEffect(() => {
     const q = query(collection(db, 'places'), orderBy('createdAt', 'desc'));
@@ -288,6 +292,47 @@ export default function PlacesPage() {
       setEditError(e?.message || 'Tallennus epäonnistui.');
     } finally {
       setEditBusy(false);
+    }
+  }
+
+  function getLikeCount(p) {
+    if (!p) return 0;
+    if (typeof p.likeCount === 'number') return p.likeCount;
+    if (Array.isArray(p.likedBy)) return p.likedBy.length;
+    return 0;
+  }
+
+  function isLikedByMe(p) {
+    if (!p || !user?.uid) return false;
+    return Array.isArray(p.likedBy) && p.likedBy.includes(user.uid);
+  }
+
+  async function toggleLike(placeId) {
+    if (!user?.uid) return;
+    if (!placeId) return;
+    setLikeBusyId(placeId);
+    setLikeError('');
+
+    try {
+      const ref = doc(db, 'places', placeId);
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if (!snap.exists()) return;
+
+        const data = snap.data() || {};
+        const likedBy = Array.isArray(data.likedBy) ? data.likedBy : [];
+        const count = typeof data.likeCount === 'number' ? data.likeCount : likedBy.length;
+
+        const already = likedBy.includes(user.uid);
+        const nextLikedBy = already ? likedBy.filter((uid) => uid !== user.uid) : [...likedBy, user.uid];
+        const nextCount = already ? Math.max(0, count - 1) : count + 1;
+
+        tx.update(ref, { likedBy: nextLikedBy, likeCount: nextCount });
+      });
+    } catch (e) {
+      setLikeError(e?.message || 'Tykkäyksen tallennus epäonnistui.');
+    } finally {
+      setLikeBusyId('');
     }
   }
 
@@ -571,31 +616,46 @@ export default function PlacesPage() {
                     {p.notes ? <div className="list__notes">{String(p.notes).slice(0, 90)}{String(p.notes).length > 90 ? '…' : ''}</div> : null}
                   </button>
 
-                  {isAdmin || p.createdByUid === user?.uid ? (
+                  <div className="list__actions">
                     <button
                       type="button"
-                      className="icon-btn"
-                      aria-label="Muokkaa"
-                      onClick={() => startEdit(p)}
+                      className={isLikedByMe(p) ? 'icon-btn icon-btn--active' : 'icon-btn'}
+                      aria-label="Tykkää"
+                      disabled={likeBusyId === p.id}
+                      onClick={() => toggleLike(p.id)}
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M12 20H21"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
+                      <div className="like-btn">
+                        <span className="like-btn__icon">👍</span>
+                        <span className="like-btn__count">{getLikeCount(p)}</span>
+                      </div>
                     </button>
-                  ) : null}
+
+                    {isAdmin || p.createdByUid === user?.uid ? (
+                      <button
+                        type="button"
+                        className="icon-btn"
+                        aria-label="Muokkaa"
+                        onClick={() => startEdit(p)}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M12 20H21"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               ))}
             </div>
@@ -617,6 +677,16 @@ export default function PlacesPage() {
 
             <div className="detail__body">
               <div style={{ opacity: 0.9 }}>{displayAddress(selectedPlace) || selectedPlace.address}</div>
+              <div style={{ marginTop: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
+                <button
+                  type="button"
+                  className={isLikedByMe(selectedPlace) ? 'btn btn--secondary like-pill like-pill--active' : 'btn btn--secondary like-pill'}
+                  onClick={() => toggleLike(selectedPlace.id)}
+                  disabled={likeBusyId === selectedPlace.id}
+                >
+                  👍 {getLikeCount(selectedPlace)}
+                </button>
+              </div>
               {selectedPlace.benefit ? (
                 <div style={{ marginTop: 10 }}>
                   <div className="nav-muted" style={{ marginBottom: 4 }}>
@@ -634,6 +704,8 @@ export default function PlacesPage() {
                 </div>
               ) : null}
             </div>
+
+            {likeError ? <div className="error">{likeError}</div> : null}
 
             {(isAdmin || selectedPlace.createdByUid === user?.uid) && view === 'list' ? (
               <div style={{ marginTop: 12 }}>

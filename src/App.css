@@ -195,6 +195,12 @@
   align-items: stretch;
 }
 
+.list__actions {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
 .icon-btn {
   display: grid;
   place-items: center;
@@ -209,6 +215,34 @@
 .icon-btn:hover {
   background: rgba(138, 180, 255, 0.14);
   border-color: rgba(138, 180, 255, 0.26);
+}
+
+.icon-btn--active {
+  background: rgba(138, 180, 255, 0.22);
+  border-color: rgba(138, 180, 255, 0.35);
+}
+
+.like-btn {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.like-btn__count {
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+.like-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.like-pill--active {
+  background: rgba(138, 180, 255, 0.22);
+  border-color: rgba(138, 180, 255, 0.35);
 }
 
 .list__item {
