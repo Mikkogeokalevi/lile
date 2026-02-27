@@ -5,7 +5,6 @@ import {
   doc,
   limit,
   onSnapshot,
-  orderBy,
   query,
   serverTimestamp,
   updateDoc,
@@ -51,6 +50,7 @@ export default function PlacesPage() {
   const [requestError, setRequestError] = useState('');
   const [requestSuccess, setRequestSuccess] = useState('');
   const [pendingRemovalRequest, setPendingRemovalRequest] = useState(null);
+  const [pendingRemovalError, setPendingRemovalError] = useState('');
 
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [clusterPlaces, setClusterPlaces] = useState([]);
@@ -162,6 +162,7 @@ export default function PlacesPage() {
   useEffect(() => {
     if (!editingPlace?.id) {
       setPendingRemovalRequest(null);
+      setPendingRemovalError('');
       return;
     }
 
@@ -169,7 +170,6 @@ export default function PlacesPage() {
       collection(db, 'placeRemovalRequests'),
       where('placeId', '==', editingPlace.id),
       where('status', '==', 'pending'),
-      orderBy('requestedAt', 'desc'),
       limit(1)
     );
 
@@ -179,9 +179,11 @@ export default function PlacesPage() {
         const docs = [];
         snap.forEach((d) => docs.push({ id: d.id, ...d.data() }));
         setPendingRemovalRequest(docs[0] || null);
+        setPendingRemovalError('');
       },
-      () => {
+      (e) => {
         setPendingRemovalRequest(null);
+        setPendingRemovalError(e?.message || 'Poistopyynnön tilan tarkistus epäonnistui.');
       }
     );
 
@@ -572,6 +574,11 @@ export default function PlacesPage() {
             {pendingRemovalRequest ? (
               <div className="hint" style={{ marginTop: 8 }}>
                 Poistopyyntö odottaa käsittelyä.
+              </div>
+            ) : null}
+            {!pendingRemovalRequest && pendingRemovalError ? (
+              <div className="hint" style={{ marginTop: 8 }}>
+                Poistopyynnön tilaa ei voitu tarkistaa.
               </div>
             ) : null}
             {!requestError && !requestBusy ? (
