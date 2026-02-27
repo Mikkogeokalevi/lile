@@ -13,9 +13,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 
-import { httpsCallable } from 'firebase/functions';
-
-import { db, functions } from '../firebase';
+import { db } from '../firebase';
 
 export default function AdminPage() {
   const [requests, setRequests] = React.useState([]);
@@ -46,24 +44,20 @@ export default function AdminPage() {
   }, []);
 
   React.useEffect(() => {
-    let active = true;
-    const load = async () => {
-      setUserError('');
-      try {
-        const fn = httpsCallable(functions, 'adminListUsers');
-        const res = await fn({ limit: 200 });
-        const rows = Array.isArray(res?.data?.users) ? res.data.users : [];
-        if (!active) return;
+    const q = query(collection(db, 'users'), orderBy('lastSeenAt', 'desc'));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const rows = [];
+        snap.forEach((d) => rows.push({ id: d.id, ...d.data() }));
         setUsers(rows);
-      } catch (e) {
-        if (!active) return;
+        setUserError('');
+      },
+      (e) => {
         setUserError(e?.message || 'Käyttäjien haku epäonnistui.');
       }
-    };
-    load();
-    return () => {
-      active = false;
-    };
+    );
+    return () => unsub();
   }, []);
 
   const filtered = React.useMemo(() => {
@@ -119,22 +113,20 @@ export default function AdminPage() {
   }
 
   async function toggleBlocked(u) {
-    if (!u?.uid) return;
-    const nextBlocked = !u.disabled;
+    const uid = u?.uid || u?.id;
+    if (!uid) return;
+    const nextBlocked = (u.status || 'active') !== 'blocked';
     const emailLabel = u.email ? ` (${u.email})` : '';
-    const ok = window.confirm(
-      nextBlocked
-        ? `Estetäänkö käyttäjä${emailLabel} kirjautumasta?`
-        : `Sallitaanko käyttäjän${emailLabel} kirjautua taas?`
-    );
+    const ok = window.confirm(nextBlocked ? `Estetäänkö käyttäjä${emailLabel} käyttämästä sovellusta?` : `Sallitaanko käyttäjän${emailLabel} käyttää sovellusta taas?`);
     if (!ok) return;
 
-    setUserBusyId(u.uid);
+    setUserBusyId(uid);
     setUserError('');
     try {
-      const fn = httpsCallable(functions, 'adminSetUserBlocked');
-      await fn({ uid: u.uid, blocked: nextBlocked });
-      setUsers((prev) => prev.map((row) => (row.uid === u.uid ? { ...row, disabled: nextBlocked } : row)));
+      await updateDoc(doc(db, 'users', uid), {
+        status: nextBlocked ? 'blocked' : 'active',
+        updatedAt: serverTimestamp(),
+      });
     } catch (e) {
       setUserError(e?.message || 'Toiminto epäonnistui.');
     } finally {
@@ -143,19 +135,21 @@ export default function AdminPage() {
   }
 
   async function deleteUser(u) {
-    if (!u?.uid) return;
+    const uid = u?.uid || u?.id;
+    if (!uid) return;
     const emailLabel = u.email ? ` (${u.email})` : '';
     const ok = window.confirm(
-      `Poistetaanko käyttäjä${emailLabel} kokonaan?\n\nTätä ei voi perua.`
+      `Poistetaanko käyttäjä${emailLabel} käytöstä (soft delete)?\n\nKäyttäjä ei voi enää käyttää sovellusta.`
     );
     if (!ok) return;
 
-    setUserBusyId(u.uid);
+    setUserBusyId(uid);
     setUserError('');
     try {
-      const fn = httpsCallable(functions, 'adminDeleteUser');
-      await fn({ uid: u.uid });
-      setUsers((prev) => prev.filter((row) => row.uid !== u.uid));
+      await updateDoc(doc(db, 'users', uid), {
+        status: 'deleted',
+        updatedAt: serverTimestamp(),
+      });
     } catch (e) {
       setUserError(e?.message || 'Poisto epäonnistui.');
     } finally {
@@ -208,15 +202,17 @@ export default function AdminPage() {
 
       <div className="places-list" style={{ marginTop: 12 }}>
         {filteredUsers.map((u) => {
-          const busy = userBusyId === u.uid;
-          const created = u.creationTime ? new Date(u.creationTime).toLocaleString('fi-FI') : '';
-          const last = u.lastSignInTime ? new Date(u.lastSignInTime).toLocaleString('fi-FI') : '';
+          const uid = u?.uid || u?.id;
+          const busy = userBusyId === uid;
+          const created = u.createdAt?.toDate ? u.createdAt.toDate().toLocaleString('fi-FI') : '';
+          const last = u.lastSeenAt?.toDate ? u.lastSeenAt.toDate().toLocaleString('fi-FI') : '';
+          const status = u.status || 'active';
           return (
-            <div key={u.uid} className="place-item">
+            <div key={uid} className="place-item">
               <div className="place-main">
                 <div className="place-title">{u.email || '(ei sähköpostia)'}</div>
                 <div className="place-sub">
-                  <span className="badge">{u.disabled ? 'blocked' : 'active'}</span>
+                  <span className="badge">{status}</span>
                   {created ? (
                     <span className="nav-muted" style={{ marginLeft: 8 }}>
                       Rek.: {created}
@@ -232,7 +228,7 @@ export default function AdminPage() {
 
               <div className="place-actions" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button className="btn btn--secondary" type="button" onClick={() => toggleBlocked(u)} disabled={busy}>
-                  {u.disabled ? 'Salli' : 'Estä'}
+                  {status === 'blocked' ? 'Salli' : 'Estä'}
                 </button>
                 <button className="btn" type="button" onClick={() => deleteUser(u)} disabled={busy}>
                   Poista
