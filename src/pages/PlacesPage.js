@@ -3,11 +3,13 @@ import {
   addDoc,
   collection,
   doc,
+  limit,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
   updateDoc,
+  where,
 } from 'firebase/firestore';
 
 import { db } from '../firebase';
@@ -47,6 +49,8 @@ export default function PlacesPage() {
   const [editError, setEditError] = useState('');
   const [requestBusy, setRequestBusy] = useState(false);
   const [requestError, setRequestError] = useState('');
+  const [requestSuccess, setRequestSuccess] = useState('');
+  const [pendingRemovalRequest, setPendingRemovalRequest] = useState(null);
 
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [clusterPlaces, setClusterPlaces] = useState([]);
@@ -152,7 +156,37 @@ export default function PlacesPage() {
     setEditPickedLocation(null);
     setEditError('');
     setRequestError('');
+    setRequestSuccess('');
   }
+
+  useEffect(() => {
+    if (!editingPlace?.id) {
+      setPendingRemovalRequest(null);
+      return;
+    }
+
+    const q = query(
+      collection(db, 'placeRemovalRequests'),
+      where('placeId', '==', editingPlace.id),
+      where('status', '==', 'pending'),
+      orderBy('requestedAt', 'desc'),
+      limit(1)
+    );
+
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const docs = [];
+        snap.forEach((d) => docs.push({ id: d.id, ...d.data() }));
+        setPendingRemovalRequest(docs[0] || null);
+      },
+      () => {
+        setPendingRemovalRequest(null);
+      }
+    );
+
+    return () => unsub();
+  }, [editingPlace?.id]);
 
   async function saveEdit() {
     if (!user || !editingPlace) return;
@@ -187,8 +221,10 @@ export default function PlacesPage() {
 
   async function requestRemoval() {
     if (!user || !editingPlace) return;
+    if (pendingRemovalRequest) return;
     setRequestBusy(true);
     setRequestError('');
+    setRequestSuccess('');
 
     try {
       await addDoc(collection(db, 'placeRemovalRequests'), {
@@ -199,6 +235,8 @@ export default function PlacesPage() {
         requestedByEmail: user.email || null,
         status: 'pending',
       });
+
+      setRequestSuccess('Poistopyyntö lähetetty. Se odottaa ylläpidon käsittelyä.');
     } catch (e) {
       setRequestError(e?.message || 'Poistopyynnön lähetys epäonnistui.');
     } finally {
@@ -517,14 +555,25 @@ export default function PlacesPage() {
                 className="btn btn--secondary"
                 type="button"
                 onClick={requestRemoval}
-                disabled={requestBusy}
+                disabled={requestBusy || !!pendingRemovalRequest}
               >
-                {requestBusy ? 'Lähetetään...' : 'Pyydä poistoa'}
+                {requestBusy
+                  ? 'Lähetetään...'
+                  : pendingRemovalRequest
+                    ? 'Poistopyyntö lähetetty'
+                    : 'Pyydä poistoa'}
               </button>
             </div>
 
             {editError ? <div className="error">{editError}</div> : null}
             {requestError ? <div className="error">{requestError}</div> : null}
+            {requestSuccess ? <div className="hint">{requestSuccess}</div> : null}
+
+            {pendingRemovalRequest ? (
+              <div className="hint" style={{ marginTop: 8 }}>
+                Poistopyyntö odottaa käsittelyä.
+              </div>
+            ) : null}
             {!requestError && !requestBusy ? (
               <div className="hint">Poistopyyntö menee ylläpitäjälle hyväksyttäväksi.</div>
             ) : null}
