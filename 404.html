@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lile Lahti</title>
+  </head>
+  <body>
+    <script>
+      (function () {
+        var l = window.location;
+        var repoBase = '/lile';
+        var path = l.pathname;
+        var rest = path.indexOf(repoBase) === 0 ? path.slice(repoBase.length) : path;
+        var target = repoBase + '/?p=' + encodeURIComponent(rest + l.search + l.hash);
+        l.replace(target);
+      })();
+    </script>
+  </body>
+</html>
