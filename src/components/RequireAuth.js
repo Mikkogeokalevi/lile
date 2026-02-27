@@ -14,14 +14,17 @@ export default function RequireAuth({ children }) {
   const [status, setStatus] = React.useState('');
   const [statusLoading, setStatusLoading] = React.useState(false);
 
-  if (initializing) return <div>Ladataan...</div>;
-  if (!user) return <Navigate to="/kirjaudu" replace state={{ from: location }} />;
-
   React.useEffect(() => {
-    if (!user?.uid) return;
+    if (!user?.uid) {
+      setStatus('');
+      setStatusLoading(false);
+      return undefined;
+    }
+
     setStatusLoading(true);
+    const ref = doc(db, 'users', user.uid);
     const unsub = onSnapshot(
-      doc(db, 'users', user.uid),
+      ref,
       (snap) => {
         const s = snap.exists() ? String(snap.data()?.status || '') : '';
         setStatus(s);
@@ -41,8 +44,9 @@ export default function RequireAuth({ children }) {
     signOut(auth).catch(() => {});
   }, [status, user]);
 
+  if (initializing) return <div>Ladataan...</div>;
+  if (!user) return <Navigate to="/kirjaudu" replace state={{ from: location }} />;
   if (statusLoading) return <div>Ladataan...</div>;
-
   if (status === 'blocked' || status === 'deleted') {
     return <Navigate to="/kirjaudu" replace state={{ from: location, blocked: true }} />;
   }
