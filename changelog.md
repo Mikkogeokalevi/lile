@@ -9,6 +9,7 @@
 - Reseptit-sivu: Lista/Lisää -näkymät ja reseptin avaus/sulku (vain yksi kerrallaan auki).
 - Reseptit-sivu: reseptin tulostus (Tulosta).
 - Reseptit-sivu: kategoriat valitaan valmiista listasta (ei kirjoitusasu-eroja kuten pitsa/pizza).
+- Ruokapaikat: kategoriat (esim. ravintola, kahvila, buffet, grilli) ja kategoria-suodatin.
 - Versiohistoria-sivu: käyttäjille näkyvä versiohistoria on nyt luettavissa sovelluksessa.
 
 ## 2026-02-27

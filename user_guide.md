@@ -55,6 +55,8 @@ Ruokapaikat-osiossa käyttäjät voivat:
 - Tykkäillä ruokapaikoista
 - Ehdottaa ruokapaikan poistoa (tarkistetaan ylläpidossa)
 
+Ruokapaikoille valitaan kategoria (esim. ravintola, kahvila, buffet, grilli), ja listaa voi suodattaa kategorian mukaan.
+
 ### 4.2 Reseptit
 Reseptit-osiossa käyttäjät voivat:
 - Lisätä uuden reseptin
