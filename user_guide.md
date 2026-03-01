@@ -73,6 +73,13 @@ Reseptit-sivulla on kaksi näkymää:
 
 Kategoria valitaan valmiista listasta, jotta sama kategoria ei kirjoitu eri muodoissa (esim. pizza/pizzat/pitsa).
 
+Keittiötila (mobiili):
+- Avaa resepti ja paina **Keittiötila**.
+- Keittiötilassa voit pitää reseptin näkyvissä keittiössä.
+- Ainekset ja ohje ovat ruksattavia (ruksit säilyvät omassa puhelimessa).
+- **Jaa**-napilla voit lähettää reseptin esim. WhatsAppissa.
+- Joissain Android-laitteissa sovellus yrittää pitää näytön päällä keittiötilan ajan (jos laite tukee).
+
 ## 5. Admin-näkymä
 Admin-näkymä näkyy vain ylläpitäjälle. Siellä hallitaan mm. käyttäjiä ja poistoehdotuksia.
 

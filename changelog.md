@@ -1,6 +1,6 @@
 # Versiohistoria
 
-## 2026-03-01
+## v1.02 (2026-03-01)
 
 ### Lisätty
 - Reseptit-sivu: reseptien lisäys, muokkaus ja poisto.
@@ -12,7 +12,7 @@
 - Ruokapaikat: kategoriat (esim. ravintola, kahvila, buffet, grilli) ja kategoria-suodatin.
 - Versiohistoria-sivu: käyttäjille näkyvä versiohistoria on nyt luettavissa sovelluksessa.
 
-## 2026-02-27
+## v1.01 (2026-02-27)
 
 ### Lisätty
 - Ruokapaikat: uusi kenttä “Etu/Alennus” paikoille (näkyy listassa ja tietoikkunassa).
@@ -25,7 +25,7 @@
 - Ruokapaikat (kartta): paikkamerkinnät näkyvät kauempaa ja samassa kohdassa olevat paikat aukeavat listaksi.
 - Yläpalkki (mobiili): ulkoasua parannettu (logo ja selkeämmät päänavigaation napit).
 
-## 2026-02-26
+## v1.00 (2026-02-26)
 
 ### Lisätty
 - Sovelluksen ensimmäinen alustava versio (perusrunko ja mobiili-/PWA-valmius).
