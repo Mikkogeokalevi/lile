@@ -62,6 +62,14 @@ Reseptit-osiossa käyttäjät voivat:
 - Poistaa omia reseptejään
 - Tykkäillä resepteistä
 - Hakea reseptejä ja suodattaa kategorian mukaan
+- Avata reseptin (Avaa/Sulje) ja lukea ohjeet selkeästi
+- Tulostaa reseptin (Tulosta)
+
+Reseptit-sivulla on kaksi näkymää:
+- **Lista**: selaa ja hae reseptejä. Avaa resepti napista **Avaa**.
+- **Lisää**: lisää uusi resepti.
+
+Kategoria valitaan valmiista listasta, jotta sama kategoria ei kirjoitu eri muodoissa (esim. pizza/pizzat/pitsa).
 
 ## 5. Admin-näkymä
 Admin-näkymä näkyy vain ylläpitäjälle. Siellä hallitaan mm. käyttäjiä ja poistoehdotuksia.
