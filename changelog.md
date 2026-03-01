@@ -53,8 +53,3 @@
 
 ### Muutettu
 - Ruokapaikat (mobiili): selkeämmät välilehdet (Lista/Kartta/Lisää), haku suodattaa sekä listaa että karttaa ja paikan painallus avaa tiedot omassa tietoikkunassa; osoitteet näytetään tiiviimmin ja lisätiedot on selkeämmin esillä; “Lisää uusi paikka” ei aukea oletuksena.
-
-### Lisätty
-- Ruokapaikat: uusi kenttä “Etu/Alennus” paikoille (näkyy listassa ja tietoikkunassa).
-- Ruokapaikat: paikkoja voi peukuttaa (näkyy peukkujen määrä listassa ja tietoikkunassa).
-- Ruokapaikat: paikoille voi lisätä nettisivun ja aukioloajat (näkyy listassa ja tietoikkunassa).
