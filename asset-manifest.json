@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/lile/static/css/main.53376e2c.css",
-    "main.js": "/lile/static/js/main.bc0d26a0.js",
+    "main.js": "/lile/static/js/main.649b4073.js",
     "static/media/lilelogo.jpeg": "/lile/static/media/lilelogo.9f4a4fb92dd0372e2ebe.jpeg",
     "index.html": "/lile/index.html",
     "main.53376e2c.css.map": "/lile/static/css/main.53376e2c.css.map",
-    "main.bc0d26a0.js.map": "/lile/static/js/main.bc0d26a0.js.map"
+    "main.649b4073.js.map": "/lile/static/js/main.649b4073.js.map"
   },
   "entrypoints": [
     "static/css/main.53376e2c.css",
-    "static/js/main.bc0d26a0.js"
+    "static/js/main.649b4073.js"
   ]
 }
