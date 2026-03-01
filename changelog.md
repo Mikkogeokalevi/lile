@@ -1,5 +1,13 @@
 # Versiohistoria
 
+## 2026-03-01
+
+### Lisätty
+- Reseptit-sivu: reseptien lisäys, muokkaus ja poisto.
+- Reseptit-sivu: tykkäykset (peukku + laskuri).
+- Reseptit-sivu: haku ja kategoriafiltteri.
+- Versiohistoria-sivu: käyttäjille näkyvä versiohistoria on nyt luettavissa sovelluksessa.
+
 ## 2026-02-27
 
 ### Lisätty
