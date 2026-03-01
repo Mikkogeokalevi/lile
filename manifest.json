@@ -1,6 +1,8 @@
 ﻿{
   "short_name": "Lile Lahti",
   "name": "Lile Lahti",
+  "id": "/lile/",
+  "scope": "/lile/",
   "icons": [
     {
       "src": "favicon.png",
@@ -18,8 +20,9 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/lile/",
   "display": "standalone",
+  "prefer_related_applications": false,
   "theme_color": "#000000",
   "background_color": "#ffffff"
 }
